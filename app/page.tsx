@@ -12,7 +12,7 @@ async function getWines() {
   try {
     console.log('URL de Supabase:', process.env.NEXT_PUBLIC_SUPABASE_URL);
     console.log('Clave anónima presente:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-    
+
     const { data, error } = await supabase
       .from('vinos')
       .select('*');
@@ -32,7 +32,6 @@ async function getWines() {
         ejemplo: data[0]
       });
 
-      // Mapear los datos al formato esperado
       const winesMapped = data.map(wine => ({
         id: wine.Id?.toString(),
         title: wine.Title,
@@ -55,7 +54,7 @@ async function getWines() {
 
       return winesMapped;
     }
-    
+
     return [];
   } catch (error) {
     console.error('Error inesperado al obtener vinos:', error);
@@ -65,7 +64,7 @@ async function getWines() {
 
 export default async function Home() {
   const wines = await getWines();
-  
+
   if (!wines || wines.length === 0) {
     console.log('No se encontraron vinos en la base de datos');
   } else {
@@ -74,10 +73,22 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-wine-darker via-wine-dark to-wine-light">
-      <div className="py-16 px-4">
-        <h1 className="text-5xl font-bold text-center mb-12 text-cork-100">
-          Nuestra Colección de Vinos
-        </h1>
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🍷</span>
+            <h1 className="text-xl font-bold text-cork-100">
+              Colección de Vinos
+            </h1>
+          </div>
+          <a
+            href="mailto:guillesrl@gmail.com"
+            className="px-3 py-2 rounded-lg text-sm font-medium transition-colors text-cork-300 hover:bg-wine-dark/50 hover:text-cork-100 inline-flex items-center gap-1"
+          >
+            <span>📧</span> Contacto
+          </a>
+        </div>
+
         <WineList initialWines={wines} />
       </div>
     </main>
