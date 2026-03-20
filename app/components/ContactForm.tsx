@@ -37,7 +37,7 @@ export default function ContactForm() {
         subject: '',
         message: ''
       });
-    } catch (error) {
+    } catch {
       setStatus('error');
       setResponseMessage('Hubo un error al enviar tu mensaje. Por favor, intenta nuevamente.');
     }

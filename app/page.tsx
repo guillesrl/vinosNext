@@ -3,6 +3,12 @@ import { supabase } from './utils/supabase';
 
 async function getWines() {
   console.log('Intentando obtener vinos de Supabase...');
+
+  if (!supabase) {
+    console.error('Error: Cliente de Supabase no inicializado. Variables de entorno faltantes.');
+    return [];
+  }
+
   try {
     console.log('URL de Supabase:', process.env.NEXT_PUBLIC_SUPABASE_URL);
     console.log('Clave anónima presente:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);

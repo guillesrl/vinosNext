@@ -19,7 +19,7 @@ export default function NewsletterForm() {
       setStatus('success');
       setMessage('¡Gracias por suscribirte a nuestro boletín!');
       setEmail('');
-    } catch (error) {
+    } catch {
       setStatus('error');
       setMessage('Hubo un error al procesar tu suscripción. Por favor, intenta nuevamente.');
     }
