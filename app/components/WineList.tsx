@@ -94,7 +94,7 @@ export default function WineList({ initialWines }: WineListProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             {currentWines.map((wine, index) => renderWineCard(wine, index))}
           </div>
 
