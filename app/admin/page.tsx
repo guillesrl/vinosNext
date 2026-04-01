@@ -168,65 +168,65 @@ export default function AdminPage() {
                       <input
                         type="text"
                         placeholder="Título"
-                        value={editingWine.title || ''}
-                        onChange={(e) => setEditingWine({ ...editingWine, title: e.target.value })}
+                        value={editingWine?.title || ''}
+                        onChange={(e) => editingWine && setEditingWine({ ...editingWine, title: e.target.value })}
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
                       <input
                         type="number"
                         placeholder="Año"
-                        value={editingWine.vintage || ''}
-                        onChange={(e) => setEditingWine({ ...editingWine, vintage: parseInt(e.target.value) })}
+                        value={editingWine?.vintage || ''}
+                        onChange={(e) => editingWine && setEditingWine({ ...editingWine, vintage: parseInt(e.target.value) })}
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
                       <input
                         type="text"
                         placeholder="Bodega"
-                        value={editingWine.winery || ''}
-                        onChange={(e) => setEditingWine({ ...editingWine, winery: e.target.value })}
+                        value={editingWine?.winery || ''}
+                        onChange={(e) => editingWine && setEditingWine({ ...editingWine, winery: e.target.value })}
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
                       <input
                         type="text"
                         placeholder="Variedad"
-                        value={editingWine.variety || ''}
-                        onChange={(e) => setEditingWine({ ...editingWine, variety: e.target.value })}
+                        value={editingWine?.variety || ''}
+                        onChange={(e) => editingWine && setEditingWine({ ...editingWine, variety: e.target.value })}
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
                       <input
                         type="text"
                         placeholder="País"
-                        value={editingWine.country || ''}
-                        onChange={(e) => setEditingWine({ ...editingWine, country: e.target.value })}
+                        value={editingWine?.country || ''}
+                        onChange={(e) => editingWine && setEditingWine({ ...editingWine, country: e.target.value })}
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
                       <input
                         type="text"
                         placeholder="Provincia"
-                        value={editingWine.province || ''}
-                        onChange={(e) => setEditingWine({ ...editingWine, province: e.target.value })}
+                        value={editingWine?.province || ''}
+                        onChange={(e) => editingWine && setEditingWine({ ...editingWine, province: e.target.value })}
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
                       <input
                         type="number"
                         placeholder="Precio"
-                        value={editingWine.price || ''}
-                        onChange={(e) => setEditingWine({ ...editingWine, price: parseFloat(e.target.value) })}
+                        value={editingWine?.price || ''}
+                        onChange={(e) => editingWine && setEditingWine({ ...editingWine, price: parseFloat(e.target.value) })}
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
                       <input
                         type="number"
                         placeholder="Puntos"
-                        value={editingWine.points || ''}
-                        onChange={(e) => setEditingWine({ ...editingWine, points: parseInt(e.target.value) })}
+                        value={editingWine?.points || ''}
+                        onChange={(e) => editingWine && setEditingWine({ ...editingWine, points: parseInt(e.target.value) })}
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
                     </div>
                     <input
                       type="text"
                       placeholder="Designación"
-                      value={editingWine.designation || ''}
-                      onChange={(e) => setEditingWine({ ...editingWine, designation: e.target.value })}
+                      value={editingWine?.designation || ''}
+                      onChange={(e) => editingWine && setEditingWine({ ...editingWine, designation: e.target.value })}
                       className="w-full px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                     />
                     <div className="flex gap-2">
