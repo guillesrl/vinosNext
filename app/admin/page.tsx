@@ -8,7 +8,6 @@ export default function AdminPage() {
   const [wines, setWines] = useState<Wine[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingWine, setEditingWine] = useState<Wine | null>(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [password, setPassword] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
@@ -120,41 +119,7 @@ export default function AdminPage() {
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !supabase || !editingWine || !editingWine!.id) return;
 
-    setUploadingImage(true);
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${editingWine!.id}_${Date.now()}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage
-        .from('wine-images')
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
-      const publicUrl = supabase.storage
-        .from('wine-images')
-        .getPublicUrl(fileName).data.publicUrl;
-
-      const { error: updateError } = await supabase
-        .from('vinos')
-        .update({ image_url: publicUrl })
-        .eq('Id', parseInt(editingWine!.id));
-
-      if (updateError) throw updateError;
-
-      setEditingWine(prev => prev ? { ...prev, image_url: publicUrl } : prev);
-      loadWines();
-      alert('Imagen subida correctamente');
-    } catch (error) {
-      console.error('Error subiendo imagen:', error);
-      alert('Error al subir la imagen');
-    } finally {
-      setUploadingImage(false);
-    }
-  };
 
   if (!authenticated) {
     return (
@@ -285,7 +250,7 @@ export default function AdminPage() {
                       className="w-full px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                     />
                     <div className="space-y-2">
-                      <label className="block text-cork-200 text-sm font-medium">Imagen del vino</label>
+                      <label className="block text-cork-200 text-sm font-medium">URL de imagen del vino</label>
                       {editingWine!.image_url && (
                         <div className="relative w-full h-40 rounded overflow-hidden border border-cork-400/20">
                           <img
@@ -295,16 +260,13 @@ export default function AdminPage() {
                           />
                         </div>
                       )}
-                      <label className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-colors text-sm cursor-pointer">
-                        {uploadingImage ? 'Subiendo...' : 'Subir Imagen'}
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          disabled={uploadingImage}
-                          className="hidden"
-                        />
-                      </label>
+                      <input
+                        type="text"
+                        placeholder="https://ejemplo.com/imagen.jpg"
+                        value={editingWine!.image_url || ''}
+                        onChange={(e) => setEditingWine(prev => prev ? { ...prev, image_url: e.target.value } : prev)}
+                        className="w-full px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
+                      />
                     </div>
                     <div className="flex gap-2">
                       <button
