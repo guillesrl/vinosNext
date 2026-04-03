@@ -62,14 +62,60 @@ export default function WineList({ initialWines }: WineListProps) {
     return (
       <div
         key={wine.id || index}
-        className="bg-wine-dark/80 border border-cork-400/20 rounded-lg p-4 backdrop-blur-sm"
+        className="bg-wine-dark/80 border border-cork-400/20 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-cork-400/40 backdrop-blur-sm text-sm group"
       >
-        <div className="space-y-1">
-          <h3 className="text-lg font-semibold text-cork-100">{wine.title || wine.name || 'Sin título'}</h3>
-          <p className="text-cork-200 text-sm">Bodega: {wine.winery || 'N/A'}</p>
-          <p className="text-cork-200 text-sm">Variedad: {wine.variety || 'N/A'}</p>
-          <p className="text-cork-200 text-sm">Año: {wine.vintage || 'N/A'}</p>
-          <p className="text-cork-200 text-sm">Precio: ${wine.price || 'N/A'} | Puntos: {wine.points || 'N/A'}</p>
+        <div className="flex">
+          <div className="flex-1 p-4">
+            <div className="flex justify-between items-start mb-3">
+              <h3 className="text-base font-semibold text-cork-100 line-clamp-2">
+                {wine.title || wine.name || 'Sin título'}
+                {!wine.title && !wine.name && <span className="text-red-500"> (Falta título)</span>}
+              </h3>
+              <span className="px-2 py-1 bg-wine-light/30 rounded-full text-cork-200 text-xs ml-2 whitespace-nowrap">
+                {wine.vintage || 'N/A'}
+              </span>
+            </div>
+            <div className="space-y-1.5 text-cork-200">
+              <p className="flex justify-between">
+                <span className="text-cork-300">Bodega</span>
+                <span className="text-right flex-1 ml-4 line-clamp-1">{wine.winery || 'N/A'}</span>
+              </p>
+              <p className="flex justify-between">
+                <span className="text-cork-300">Variedad</span>
+                <span className="text-right flex-1 ml-4 line-clamp-1">{wine.variety || 'N/A'}</span>
+              </p>
+              <p className="flex justify-between">
+                <span className="text-cork-300">Región</span>
+                <span className="text-right flex-1 ml-4 line-clamp-1">
+                  {[wine.province, wine.country].filter(Boolean).join(', ') || 'N/A'}
+                </span>
+              </p>
+              <div className="pt-3 mt-3 border-t border-cork-400/20 flex justify-between items-center">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-8 h-8 rounded-full bg-wine-light/30 flex items-center justify-center">
+                    <span className="text-cork-100 font-bold text-sm">{wine.points || '0'}</span>
+                  </div>
+                  <span className="text-cork-300 text-xs">pts</span>
+                </div>
+                <span className="text-xl font-bold text-cork-100">
+                  {wine.price ? `$${wine.price}` : 'N/A'}
+                </span>
+              </div>
+              {wine.designation && (
+                <div className="mt-2 text-xs text-cork-300 italic line-clamp-1">
+                  {wine.designation}
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="w-24 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center p-2 relative overflow-hidden">
+            <div className="absolute inset-0 bg-wine-light/5 group-hover:bg-wine-light/10 transition-colors duration-300"></div>
+            <img
+              src="/wine-bottle.svg"
+              alt="Botella de vino"
+              className="w-full h-auto object-contain relative z-10 drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
+            />
+          </div>
         </div>
       </div>
     );

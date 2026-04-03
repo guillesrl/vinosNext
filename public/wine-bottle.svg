@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300" width="200" height="300">
+  <defs>
+    <linearGradient id="bottleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2d1810;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#4a2c1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a0e08;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="labelGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f5e6d3;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e8d5be;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="neckGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1a0e08;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#3d2317;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a0e08;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Botella -->
+  <path d="M85 20 L85 80 Q85 90 75 120 L60 180 Q55 200 55 220 L55 280 Q55 290 65 290 L135 290 Q145 290 145 280 L145 220 Q145 200 140 180 L125 120 Q115 90 115 80 L115 20 Z" 
+        fill="url(#bottleGrad)" stroke="#5a3a28" stroke-width="1"/>
+  
+  <!-- Cuello -->
+  <rect x="82" y="10" width="36" height="25" rx="3" fill="url(#neckGrad)" stroke="#5a3a28" stroke-width="0.5"/>
+  
+  <!-- Cápsula -->
+  <rect x="80" y="5" width="40" height="18" rx="4" fill="#8b1a1a" stroke="#6b1313" stroke-width="0.5"/>
+  <line x1="80" y1="14" x2="120" y2="14" stroke="#6b1313" stroke-width="0.5"/>
+  
+  <!-- Etiqueta -->
+  <rect x="65" y="170" width="70" height="80" rx="2" fill="url(#labelGrad)" stroke="#c9a84c" stroke-width="1.5"/>
+  
+  <!-- Decoración etiqueta -->
+  <line x1="75" y1="180" x2="125" y2="180" stroke="#c9a84c" stroke-width="0.5"/>
+  <line x1="75" y1="240" x2="125" y2="240" stroke="#c9a84c" stroke-width="0.5"/>
+  
+  <!-- Texto etiqueta -->
+  <text x="100" y="195" font-family="Georgia, serif" font-size="8" fill="#4a2c1a" text-anchor="middle" font-weight="bold">VINO</text>
+  <text x="100" y="207" font-family="Georgia, serif" font-size="6" fill="#6b4a3a" text-anchor="middle">RESERVA</text>
+  <text x="100" y="220" font-family="Georgia, serif" font-size="5" fill="#8b6b5a" text-anchor="middle">AÑO</text>
+  
+  <!-- Uvas decorativas -->
+  <circle cx="90" cy="232" r="3" fill="#722f37" opacity="0.7"/>
+  <circle cx="96" cy="230" r="3" fill="#722f37" opacity="0.7"/>
+  <circle cx="103" cy="231" r="3" fill="#722f37" opacity="0.7"/>
+  <circle cx="110" cy="233" r="3" fill="#722f37" opacity="0.7"/>
+  <circle cx="93" cy="236" r="3" fill="#722f37" opacity="0.7"/>
+  <circle cx="100" cy="235" r="3" fill="#722f37" opacity="0.7"/>
+  <circle cx="107" cy="237" r="3" fill="#722f37" opacity="0.7"/>
+  
+  <!-- Hoja de vid -->
+  <path d="M95 228 Q92 225 90 227 Q88 229 91 230 Q94 231 95 228Z" fill="#4a6741" opacity="0.8"/>
+  <path d="M105 228 Q108 225 110 227 Q112 229 109 230 Q106 231 105 228Z" fill="#4a6741" opacity="0.8"/>
+</svg>
