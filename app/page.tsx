@@ -44,7 +44,8 @@ async function getWines() {
         price: wine.Price,
         province: wine.Province,
         variety: wine.Variety,
-        winery: wine.Winery
+        winery: wine.Winery,
+        image_url: wine.image_url
       }));
 
       console.log('Estructura después del mapeo:', {
