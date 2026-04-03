@@ -9,6 +9,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [editingWine, setEditingWine] = useState<Wine | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [password, setPassword] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
 
@@ -22,6 +23,7 @@ export default function AdminPage() {
     if (!supabase) return;
 
     setLoading(true);
+    setSearchTerm('');
     try {
       const { data, error } = await supabase
         .from('vinos')
@@ -195,8 +197,22 @@ export default function AdminPage() {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cork-300"></div>
           </div>
         ) : (
-          <div className="grid gap-4">
-            {wines.map((wine) => (
+          <div>
+            <div className="mb-4">
+              <input
+                type="text"
+                placeholder="Buscar por nombre..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg bg-wine-darker border border-cork-400/20 text-cork-100 placeholder-cork-400 focus:outline-none focus:border-cork-300 text-sm"
+              />
+            </div>
+            <div className="grid gap-4">
+            {wines
+              .filter(wine => wine.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              wine.winery?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              wine.variety?.toLowerCase().includes(searchTerm.toLowerCase()))
+              .map((wine) => (
               <div
                 key={wine.id}
                 className="bg-wine-dark/80 border border-cork-400/20 rounded-lg p-4 backdrop-blur-sm"
@@ -332,6 +348,7 @@ export default function AdminPage() {
                 )}
               </div>
             ))}
+          </div>
           </div>
         )}
       </div>
