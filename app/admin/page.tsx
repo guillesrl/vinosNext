@@ -66,24 +66,24 @@ export default function AdminPage() {
   };
 
   const handleSave = async () => {
-    if (!supabase || !editingWine || !editingWine.id) return;
+    if (!supabase || !editingWine || !editingWine!.id) return;
 
     try {
       const { error } = await supabase
         .from('vinos')
         .update({
-          Title: editingWine.title,
-          Vintage: editingWine.vintage,
-          Country: editingWine.country,
-          County: editingWine.county,
-          Designation: editingWine.designation,
-          Points: editingWine.points,
-          Price: editingWine.price,
-          Province: editingWine.province,
-          Variety: editingWine.variety,
-          Winery: editingWine.winery
+          Title: editingWine!.title,
+          Vintage: editingWine!.vintage,
+          Country: editingWine!.country,
+          County: editingWine!.county,
+          Designation: editingWine!.designation,
+          Points: editingWine!.points,
+          Price: editingWine!.price,
+          Province: editingWine!.province,
+          Variety: editingWine!.variety,
+          Winery: editingWine!.winery
         })
-        .eq('Id', parseInt(editingWine.id));
+        .eq('Id', parseInt(editingWine!.id));
 
       if (error) throw error;
 
@@ -168,56 +168,56 @@ export default function AdminPage() {
                       <input
                         type="text"
                         placeholder="Título"
-                        value={editingWine.title || ''}
+                        value={editingWine!.title || ''}
                         onChange={(e) => setEditingWine(prev => prev ? { ...prev, title: e.target.value } : prev)}
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
                       <input
                         type="number"
                         placeholder="Año"
-                        value={editingWine.vintage || ''}
+                        value={editingWine!.vintage || ''}
                         onChange={(e) => setEditingWine(prev => prev ? { ...prev, vintage: parseInt(e.target.value) } : prev)}
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
                       <input
                         type="text"
                         placeholder="Bodega"
-                        value={editingWine.winery || ''}
+                        value={editingWine!.winery || ''}
                         onChange={(e) => setEditingWine(prev => prev ? { ...prev, winery: e.target.value } : prev)}
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
                       <input
                         type="text"
                         placeholder="Variedad"
-                        value={editingWine.variety || ''}
+                        value={editingWine!.variety || ''}
                         onChange={(e) => setEditingWine(prev => prev ? { ...prev, variety: e.target.value } : prev)}
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
                       <input
                         type="text"
                         placeholder="País"
-                        value={editingWine.country || ''}
+                        value={editingWine!.country || ''}
                         onChange={(e) => setEditingWine(prev => prev ? { ...prev, country: e.target.value } : prev)}
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
                       <input
                         type="text"
                         placeholder="Provincia"
-                        value={editingWine.province || ''}
+                        value={editingWine!.province || ''}
                         onChange={(e) => setEditingWine(prev => prev ? { ...prev, province: e.target.value } : prev)}
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
                       <input
                         type="number"
                         placeholder="Precio"
-                        value={editingWine.price || ''}
+                        value={editingWine!.price || ''}
                         onChange={(e) => setEditingWine(prev => prev ? { ...prev, price: parseFloat(e.target.value) } : prev)}
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
                       <input
                         type="number"
                         placeholder="Puntos"
-                        value={editingWine.points || ''}
+                        value={editingWine!.points || ''}
                         onChange={(e) => setEditingWine(prev => prev ? { ...prev, points: parseInt(e.target.value) } : prev)}
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
@@ -225,7 +225,7 @@ export default function AdminPage() {
                     <input
                       type="text"
                       placeholder="Designación"
-                      value={editingWine.designation || ''}
+                      value={editingWine!.designation || ''}
                       onChange={(e) => setEditingWine(prev => prev ? { ...prev, designation: e.target.value } : prev)}
                       className="w-full px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                     />
