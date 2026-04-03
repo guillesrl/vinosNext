@@ -64,27 +64,8 @@ export default function WineList({ initialWines }: WineListProps) {
         key={wine.id || index}
         className="bg-wine-dark/80 border border-cork-400/20 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-cork-400/40 backdrop-blur-sm text-sm group"
       >
-        <div className="flex flex-col">
-          {wine.image_url ? (
-            <div className="w-full h-48 relative overflow-hidden">
-              <img
-                src={wine.image_url}
-                alt={wine.title || 'Vino'}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-wine-dark/80 to-transparent"></div>
-            </div>
-          ) : (
-            <div className="w-full h-24 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-wine-light/5 group-hover:bg-wine-light/10 transition-colors duration-300"></div>
-              <img
-                src="/wine-bottle.svg"
-                alt="Botella de vino"
-                className="w-16 h-auto object-contain relative z-10 drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-          )}
-          <div className="p-4">
+        <div className="flex">
+          <div className="flex-1 p-4">
             <div className="flex justify-between items-start mb-3">
               <h3 className="text-base font-semibold text-cork-100 line-clamp-2">
                 {wine.title || wine.name || 'Sin título'}
@@ -126,6 +107,14 @@ export default function WineList({ initialWines }: WineListProps) {
                 </div>
               )}
             </div>
+          </div>
+          <div className="w-24 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-wine-light/5 group-hover:bg-wine-light/10 transition-colors duration-300"></div>
+            <img
+              src={wine.image_url || '/wine-bottle.svg'}
+              alt={wine.title || 'Vino'}
+              className="w-full h-full object-cover relative z-10 group-hover:scale-105 transition-transform duration-300"
+            />
           </div>
         </div>
       </div>
