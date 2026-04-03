@@ -39,6 +39,7 @@ export interface Wine {
   province?: string;
   variety?: string;
   winery?: string;
+  image_url?: string;
 }
 
 export type WineCreateInput = Partial<Wine>;
