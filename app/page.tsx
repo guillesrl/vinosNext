@@ -63,6 +63,8 @@ async function getWines() {
   }
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const wines = await getWines();
 
