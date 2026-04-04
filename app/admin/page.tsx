@@ -284,27 +284,39 @@ export default function AdminPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-1 flex-1">
-                      <h3 className="text-lg font-semibold text-cork-100">{wine.title || 'Sin título'}</h3>
-                      <p className="text-cork-200 text-sm">Bodega: {wine.winery || 'N/A'}</p>
-                      <p className="text-cork-200 text-sm">Variedad: {wine.variety || 'N/A'}</p>
-                      <p className="text-cork-200 text-sm">Año: {wine.vintage || 'N/A'}</p>
-                      <p className="text-cork-200 text-sm">Precio: ${wine.price || 'N/A'} | Puntos: {wine.points || 'N/A'}</p>
+                  <div className="flex">
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-1 flex-1">
+                          <h3 className="text-lg font-semibold text-cork-100">{wine.title || 'Sin título'}</h3>
+                          <p className="text-cork-200 text-sm">Bodega: {wine.winery || 'N/A'}</p>
+                          <p className="text-cork-200 text-sm">Variedad: {wine.variety || 'N/A'}</p>
+                          <p className="text-cork-200 text-sm">Año: {wine.vintage || 'N/A'}</p>
+                          <p className="text-cork-200 text-sm">Precio: ${wine.price || 'N/A'} | Puntos: {wine.points || 'N/A'}</p>
+                        </div>
+                        <div className="flex gap-2 ml-4">
+                          <button
+                            onClick={() => handleEdit(wine)}
+                            className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm transition-colors"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => wine.id && handleDelete(wine.id)}
+                            className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm transition-colors"
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex gap-2 ml-4">
-                      <button
-                        onClick={() => handleEdit(wine)}
-                        className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm transition-colors"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => wine.id && handleDelete(wine.id)}
-                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm transition-colors"
-                      >
-                        Eliminar
-                      </button>
+                    <div className="w-20 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center p-2 rounded">
+                      <img
+                        src={wine.image_url || '/wine-bottle.svg'}
+                        alt={wine.title || 'Vino'}
+                        className="w-full h-auto object-contain drop-shadow-lg"
+                        onError={(e) => { (e.target as HTMLImageElement).src = '/wine-bottle.svg'; }}
+                      />
                     </div>
                   </div>
                 )}
