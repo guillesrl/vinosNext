@@ -46,6 +46,7 @@ export type WineCreateInput = Partial<Wine>;
 export type WineUpdateInput = Partial<WineCreateInput>;
 
 export interface WineFilter {
+  search?: string;
   variety?: string;
   winery?: string;
   minPrice?: number;

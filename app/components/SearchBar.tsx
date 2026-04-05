@@ -30,8 +30,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
               const value = e.target.value;
               setFilters(prev => ({
                 ...prev,
-                variety: value || undefined,
-                winery: value || undefined
+                search: value || undefined
               }));
             }}
           />

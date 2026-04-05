@@ -12,11 +12,8 @@ async function getWines(filters?: WineFilter) {
     let query = supabase.from('vinos').select('*', { count: 'exact' });
 
     if (filters) {
-      if (filters.variety) {
-        query = query.or(`Variety.ilike.%${filters.variety}%,Winery.ilike.%${filters.variety}%`);
-      }
-      if (filters.winery) {
-        query = query.ilike('Winery', `%${filters.winery}%`);
+      if (filters.search) {
+        query = query.or(`Title.ilike.%${filters.search}%,Winery.ilike.%${filters.search}%,Variety.ilike.%${filters.search}%`);
       }
       if (filters.minPrice !== undefined) {
         query = query.gte('Price', filters.minPrice);
@@ -68,8 +65,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
   const params = await searchParams;
   
   const filters: WineFilter = {};
-  if (params.variety) filters.variety = params.variety;
-  if (params.winery) filters.winery = params.winery;
+  if (params.search) filters.search = params.search;
   if (params.minPrice) filters.minPrice = Number(params.minPrice);
   if (params.maxPrice) filters.maxPrice = Number(params.maxPrice);
   if (params.minPoints) filters.minPoints = Number(params.minPoints);

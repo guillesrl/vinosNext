@@ -25,8 +25,7 @@ export default function WineList({ initialWines, total }: WineListProps) {
   const handleSearch = (filters: WineFilter) => {
     setLoading(true);
     const params = new URLSearchParams();
-    if (filters.variety) params.set('variety', filters.variety);
-    if (filters.winery) params.set('winery', filters.winery);
+    if (filters.search) params.set('search', filters.search);
     if (filters.minPrice) params.set('minPrice', String(filters.minPrice));
     if (filters.maxPrice) params.set('maxPrice', String(filters.maxPrice));
     if (filters.minPoints) params.set('minPoints', String(filters.minPoints));
