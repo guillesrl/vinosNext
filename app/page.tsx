@@ -1,78 +1,81 @@
 import WineList from './components/WineList';
 import { supabase } from './utils/supabase';
+import { WineFilter } from './types/wine';
 
-async function getWines() {
-  console.log('Intentando obtener vinos de Supabase...');
-
+async function getWines(filters?: WineFilter) {
   if (!supabase) {
-    console.error('Error: Cliente de Supabase no inicializado. Variables de entorno faltantes.');
-    return [];
+    console.error('Error: Cliente de Supabase no inicializado.');
+    return { wines: [], total: 0 };
   }
 
   try {
-    console.log('URL de Supabase:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-    console.log('Clave anónima presente:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    let query = supabase.from('vinos').select('*', { count: 'exact' });
 
-    const { data, error } = await supabase
-      .from('vinos')
-      .select('*');
+    if (filters) {
+      if (filters.variety) {
+        query = query.or(`Variety.ilike.%${filters.variety}%,Winery.ilike.%${filters.variety}%`);
+      }
+      if (filters.winery) {
+        query = query.ilike('Winery', `%${filters.winery}%`);
+      }
+      if (filters.minPrice !== undefined) {
+        query = query.gte('Price', filters.minPrice);
+      }
+      if (filters.maxPrice !== undefined) {
+        query = query.lte('Price', filters.maxPrice);
+      }
+      if (filters.minPoints !== undefined) {
+        query = query.gte('Points', filters.minPoints);
+      }
+      if (filters.vintage !== undefined) {
+        query = query.eq('Vintage', filters.vintage);
+      }
+    }
+
+    const { data, error, count } = await query;
 
     if (error) {
-      console.error('Error detallado al obtener vinos:', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint
-      });
-      return [];
+      console.error('Error al obtener vinos:', error);
+      return { wines: [], total: 0 };
     }
 
-    if (data && data.length > 0) {
-      console.log('Estructura del primer vino:', {
-        camposDisponibles: Object.keys(data[0]),
-        ejemplo: data[0]
-      });
+    const winesMapped = data?.map(wine => ({
+      id: wine.Id?.toString(),
+      title: wine.Title,
+      name: wine.Title,
+      vintage: wine.Vintage,
+      country: wine.Country,
+      county: wine.County,
+      designation: wine.Designation,
+      points: wine.Points,
+      price: wine.Price,
+      province: wine.Province,
+      variety: wine.Variety,
+      winery: wine.Winery,
+      image_url: wine.image_url
+    })) || [];
 
-      const winesMapped = data.map(wine => ({
-        id: wine.Id?.toString(),
-        title: wine.Title,
-        name: wine.Title,
-        vintage: wine.Vintage,
-        country: wine.Country,
-        county: wine.County,
-        designation: wine.Designation,
-        points: wine.Points,
-        price: wine.Price,
-        province: wine.Province,
-        variety: wine.Variety,
-        winery: wine.Winery,
-        image_url: wine.image_url
-      }));
-
-      console.log('Estructura después del mapeo:', {
-        camposDisponibles: Object.keys(winesMapped[0]),
-        ejemplo: winesMapped[0]
-      });
-
-      return winesMapped;
-    }
-
-    return [];
+    return { wines: winesMapped, total: count || 0 };
   } catch (error) {
-    console.error('Error inesperado al obtener vinos:', error);
-    return [];
+    console.error('Error inesperado:', error);
+    return { wines: [], total: 0 };
   }
 }
 
 export const dynamic = 'force-dynamic';
 
-export default async function Home() {
-  const wines = await getWines();
+export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
+  const params = await searchParams;
+  
+  const filters: WineFilter = {};
+  if (params.variety) filters.variety = params.variety;
+  if (params.winery) filters.winery = params.winery;
+  if (params.minPrice) filters.minPrice = Number(params.minPrice);
+  if (params.maxPrice) filters.maxPrice = Number(params.maxPrice);
+  if (params.minPoints) filters.minPoints = Number(params.minPoints);
+  if (params.vintage) filters.vintage = Number(params.vintage);
 
-  if (!wines || wines.length === 0) {
-    console.log('No se encontraron vinos en la base de datos');
-  } else {
-    console.log(`Se encontraron ${wines.length} vinos`);
-  }
+  const { wines, total } = await getWines(Object.keys(filters).length > 0 ? filters : undefined);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-wine-darker via-wine-dark to-wine-light">
@@ -92,7 +95,7 @@ export default async function Home() {
           </a>
         </div>
 
-        <WineList initialWines={wines} />
+        <WineList initialWines={wines} total={total} />
       </div>
     </main>
   );

@@ -4,51 +4,40 @@ import { Wine, WineFilter } from '../types/wine';
 import SearchBar from './SearchBar';
 import Pagination from './Pagination';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface WineListProps {
   initialWines: Wine[];
+  total: number;
 }
 
-export default function WineList({ initialWines }: WineListProps) {
+export default function WineList({ initialWines, total }: WineListProps) {
   const [wines, setWines] = useState<Wine[]>(initialWines);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const router = useRouter();
 
   useEffect(() => {
-    console.log('WineList - initialWines:', initialWines);
-    console.log('WineList - current wines state:', wines);
-  }, [initialWines, wines]);
+    setWines(initialWines);
+  }, [initialWines]);
 
-  const handleSearch = async (filters: WineFilter) => {
+  const handleSearch = (filters: WineFilter) => {
     setLoading(true);
-    try {
-      const filteredWines = initialWines.filter(wine => {
-        const matchesSearch = !filters.variety && !filters.winery ? true :
-          wine.variety?.toLowerCase().includes((filters.variety || '').toLowerCase()) ||
-          wine.winery?.toLowerCase().includes((filters.winery || '').toLowerCase());
+    const params = new URLSearchParams();
+    if (filters.variety) params.set('variety', filters.variety);
+    if (filters.winery) params.set('winery', filters.winery);
+    if (filters.minPrice) params.set('minPrice', String(filters.minPrice));
+    if (filters.maxPrice) params.set('maxPrice', String(filters.maxPrice));
+    if (filters.minPoints) params.set('minPoints', String(filters.minPoints));
+    if (filters.vintage) params.set('vintage', String(filters.vintage));
 
-        const matchesPrice = (!filters.minPrice || (wine.price ?? 0) >= filters.minPrice) &&
-          (!filters.maxPrice || (wine.price ?? 0) <= filters.maxPrice);
-
-        const matchesPoints = !filters.minPoints || (wine.points ?? 0) >= filters.minPoints;
-
-        const matchesVintage = !filters.vintage || wine.vintage === filters.vintage;
-
-        return matchesSearch && matchesPrice && matchesPoints && matchesVintage;
-      });
-
-      setWines(filteredWines);
-      setCurrentPage(1); // Resetear a la primera página cuando se aplica un filtro
-    } catch (error) {
-      console.error('Error al buscar vinos:', error);
-    } finally {
-      setLoading(false);
-    }
+    router.push(`/?${params.toString()}`);
+    setCurrentPage(1);
+    setTimeout(() => setLoading(false), 300);
   };
 
-  // Calcular páginas y vinos a mostrar
-  const totalPages = Math.ceil(wines.length / itemsPerPage);
+  const totalPages = Math.ceil(total / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentWines = wines.slice(startIndex, endIndex);
@@ -108,12 +97,13 @@ export default function WineList({ initialWines }: WineListProps) {
               )}
             </div>
           </div>
-          <div className="w-24 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center relative overflow-hidden h-[237px]">
+          <div className="w-24 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center p-2 relative overflow-hidden">
             <div className="absolute inset-0 bg-wine-light/5 group-hover:bg-wine-light/10 transition-colors duration-300"></div>
             <img
               src={wine.image_url || '/wine-bottle.svg'}
               alt={wine.title || 'Vino'}
-              className="w-full h-full object-cover relative z-10 group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-auto object-contain relative z-10 drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
+              onError={(e) => { (e.target as HTMLImageElement).src = '/wine-bottle.svg'; }}
             />
           </div>
         </div>
@@ -133,14 +123,14 @@ export default function WineList({ initialWines }: WineListProps) {
         <>
           <div className="flex justify-between items-center mb-4">
             <div className="text-cork-200">
-              Total de vinos: {wines.length}
+              Total de vinos: {total}
             </div>
             <div className="text-cork-300 text-sm">
-              Mostrando {startIndex + 1}-{Math.min(endIndex, wines.length)} de {wines.length}
+              Mostrando {startIndex + 1}-{Math.min(endIndex, wines.length)} de {total}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
             {currentWines.map((wine, index) => renderWineCard(wine, index))}
           </div>
 
