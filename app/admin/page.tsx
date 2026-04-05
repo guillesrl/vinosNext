@@ -250,7 +250,7 @@ export default function AdminPage() {
                       className="w-full px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                     />
                     <div className="space-y-2">
-                      <label className="block text-cork-200 text-sm font-medium">URL de imagen del vino</label>
+                      <label className="block text-cork-200 text-sm font-medium">Imagen del vino</label>
                       {editingWine!.image_url && (
                         <div className="relative w-full h-40 rounded overflow-hidden border border-cork-400/20">
                           <img
@@ -260,6 +260,30 @@ export default function AdminPage() {
                           />
                         </div>
                       )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file || !supabase) return;
+                          try {
+                            const fileName = `${Date.now()}-${file.name}`;
+                            const { error: uploadError } = await supabase.storage
+                              .from('wine-images')
+                              .upload(fileName, file, { cacheControl: '3600', upsert: false });
+                            if (uploadError) throw uploadError;
+                            const { data: { publicUrl } } = supabase.storage
+                              .from('wine-images')
+                              .getPublicUrl(fileName);
+                            setEditingWine(prev => prev ? { ...prev, image_url: publicUrl } : prev);
+                          } catch (error) {
+                            console.error('Error subiendo imagen:', error);
+                            alert('Error al subir la imagen');
+                          }
+                        }}
+                        className="w-full px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-wine-light file:text-cork-100 file:text-sm file:font-semibold file:cursor-pointer"
+                      />
+                      <p className="text-cork-400 text-xs">O pega una URL:</p>
                       <input
                         type="text"
                         placeholder="https://ejemplo.com/imagen.jpg"
