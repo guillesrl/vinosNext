@@ -3,7 +3,7 @@
 import { Wine, WineFilter } from '../types/wine';
 import SearchBar from './SearchBar';
 import Pagination from './Pagination';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface WineListProps {
@@ -15,12 +15,26 @@ export default function WineList({ initialWines, total }: WineListProps) {
   const [wines, setWines] = useState<Wine[]>(initialWines);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const itemsPerPage = 10;
   const router = useRouter();
 
   useEffect(() => {
     setWines(initialWines);
+    const stored = localStorage.getItem('wine-favorites');
+    if (stored) setFavorites(new Set(JSON.parse(stored)));
   }, [initialWines]);
+
+  const toggleFavorite = useCallback((wineId: string) => {
+    setFavorites(prev => {
+      const next = new Set(prev);
+      if (next.has(wineId)) next.delete(wineId);
+      else next.add(wineId);
+      localStorage.setItem('wine-favorites', JSON.stringify([...next]));
+      return next;
+    });
+  }, []);
 
   const handleSearch = (filters: WineFilter) => {
     setLoading(true);
@@ -38,10 +52,14 @@ export default function WineList({ initialWines, total }: WineListProps) {
     setTimeout(() => setLoading(false), 300);
   };
 
-  const totalPages = Math.ceil(total / itemsPerPage);
+  const filteredWines = showFavoritesOnly
+    ? wines.filter(w => favorites.has(w.id || ''))
+    : wines;
+
+  const totalPages = Math.ceil(filteredWines.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentWines = wines.slice(startIndex, endIndex);
+  const currentWines = filteredWines.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -49,6 +67,7 @@ export default function WineList({ initialWines, total }: WineListProps) {
   };
 
   const renderWineCard = (wine: Wine, index: number) => {
+    const isFav = favorites.has(wine.id || '');
     return (
       <div
         key={wine.id || index}
@@ -61,9 +80,17 @@ export default function WineList({ initialWines, total }: WineListProps) {
                 {wine.title || wine.name || 'Sin título'}
                 {!wine.title && !wine.name && <span className="text-red-500"> (Falta título)</span>}
               </h3>
-              <span className="px-2 py-1 bg-wine-light/30 rounded-full text-cork-200 text-xs ml-2 whitespace-nowrap">
-                {wine.vintage || 'N/A'}
-              </span>
+              <div className="flex items-center gap-2 ml-2">
+                <button
+                  onClick={() => wine.id && toggleFavorite(wine.id)}
+                  className="text-lg hover:scale-125 transition-transform"
+                >
+                  {isFav ? '❤️' : '🤍'}
+                </button>
+                <span className="px-2 py-1 bg-wine-light/30 rounded-full text-cork-200 text-xs whitespace-nowrap">
+                  {wine.vintage || 'N/A'}
+                </span>
+              </div>
             </div>
             <div className="space-y-1.5 text-cork-200">
               <p className="flex justify-between">
@@ -116,21 +143,31 @@ export default function WineList({ initialWines, total }: WineListProps) {
     <div className="container mx-auto px-4">
       <SearchBar onSearch={handleSearch} />
       
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-cork-200">
+          Total de vinos: {total}
+        </div>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => { setShowFavoritesOnly(!showFavoritesOnly); setCurrentPage(1); }}
+            className={`flex items-center gap-1 text-sm px-3 py-1 rounded-lg transition-colors ${
+              showFavoritesOnly ? 'bg-wine-light/30 text-cork-100' : 'text-cork-300 hover:text-cork-100'
+            }`}
+          >
+            {showFavoritesOnly ? '❤️' : '🤍'} Favoritos ({favorites.size})
+          </button>
+          <div className="text-cork-300 text-sm">
+            Mostrando {startIndex + 1}-{Math.min(endIndex, filteredWines.length)} de {filteredWines.length}
+          </div>
+        </div>
+      </div>
+      
       {loading ? (
         <div className="flex justify-center items-center min-h-[200px]">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cork-300"></div>
         </div>
       ) : (
         <>
-          <div className="flex justify-between items-center mb-4">
-            <div className="text-cork-200">
-              Total de vinos: {total}
-            </div>
-            <div className="text-cork-300 text-sm">
-              Mostrando {startIndex + 1}-{Math.min(endIndex, wines.length)} de {total}
-            </div>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             {currentWines.map((wine, index) => renderWineCard(wine, index))}
           </div>
@@ -147,9 +184,11 @@ export default function WineList({ initialWines, total }: WineListProps) {
         </>
       )}
 
-      {wines.length === 0 && !loading && (
+      {filteredWines.length === 0 && !loading && (
         <div className="text-center py-12 text-cork-300">
-          No se encontraron vinos que coincidan con los criterios de búsqueda.
+          {showFavoritesOnly
+            ? 'No tienes vinos favoritos aún. Toca el 🤍 para agregar.'
+            : 'No se encontraron vinos que coincidan con los criterios de búsqueda.'}
         </div>
       )}
     </div>
