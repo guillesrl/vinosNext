@@ -1,7 +1,7 @@
 'use client';
 
 import { WineFilter } from '../types/wine';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface SearchBarProps {
   onSearch: (filters: WineFilter) => void;
@@ -10,17 +10,18 @@ interface SearchBarProps {
 export default function SearchBar({ onSearch }: SearchBarProps) {
   const [filters, setFilters] = useState<WineFilter>({});
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch(filters);
-  };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onSearch(filters);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [filters, onSearch]);
 
   const inputClassName = "w-full px-2 py-1.5 bg-wine-dark/50 border border-cork-400/20 rounded focus:outline-none focus:ring-1 focus:ring-cork-300 text-cork-100 placeholder-cork-400 text-xs";
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto mb-4">
-      {/* Búsqueda principal y botón */}
-      <div className="flex gap-2 mb-2 sm:mb-0">
+    <div className="w-full max-w-3xl mx-auto mb-4">
+      <div className="mb-2">
         <div className="flex-1">
           <input
             type="text"
@@ -35,15 +36,8 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
             }}
           />
         </div>
-        <button
-          type="submit"
-          className="px-3 py-1.5 bg-wine-light text-cork-100 rounded hover:bg-wine-light/80 transition-colors font-medium text-xs whitespace-nowrap"
-        >
-          Buscar
-        </button>
       </div>
 
-      {/* Filtros - en columna en móvil, en línea en pantallas más grandes */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-2 bg-wine-dark/30 rounded-lg border border-cork-400/10 mb-2">
         <div>
           <input
@@ -91,7 +85,6 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
         </div>
       </div>
 
-      {/* Ordenamiento */}
       <div className="flex gap-2 items-center">
         <select
           className={inputClassName}
@@ -115,6 +108,6 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
           <option value="title-desc">Nombre Z-A</option>
         </select>
       </div>
-    </form>
+    </div>
   );
 }
