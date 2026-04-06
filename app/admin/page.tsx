@@ -8,6 +8,8 @@ export default function AdminPage() {
   const [wines, setWines] = useState<Wine[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingWine, setEditingWine] = useState<Wine | null>(null);
+  const [creatingWine, setCreatingWine] = useState(false);
+  const [newWine, setNewWine] = useState<Wine>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [password, setPassword] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
@@ -119,6 +121,38 @@ export default function AdminPage() {
     }
   };
 
+  const handleCreate = async () => {
+    if (!supabase) return;
+
+    try {
+      const { error } = await supabase
+        .from('vinos')
+        .insert({
+          Title: newWine.title || '',
+          Vintage: newWine.vintage || null,
+          Country: newWine.country || '',
+          County: newWine.county || '',
+          Designation: newWine.designation || '',
+          Points: newWine.points || null,
+          Price: newWine.price || null,
+          Province: newWine.province || '',
+          Variety: newWine.variety || '',
+          Winery: newWine.winery || '',
+          image_url: newWine.image_url || ''
+        });
+
+      if (error) throw error;
+
+      setCreatingWine(false);
+      setNewWine({});
+      loadWines();
+      alert('Vino creado correctamente');
+    } catch (error) {
+      console.error('Error creando vino:', error);
+      alert('Error al crear el vino');
+    }
+  };
+
 
 
   if (!authenticated) {
@@ -149,12 +183,20 @@ export default function AdminPage() {
       <div className="container mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-cork-100">Panel de Administración - Vinos</h1>
-          <button
-            onClick={() => setAuthenticated(false)}
-            className="px-4 py-2 bg-wine-light/30 hover:bg-wine-light/50 text-cork-200 rounded-lg transition-colors"
-          >
-            Cerrar Sesión
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setCreatingWine(true); setNewWine({}); }}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+            >
+              + Crear Vino
+            </button>
+            <button
+              onClick={() => setAuthenticated(false)}
+              className="px-4 py-2 bg-wine-light/30 hover:bg-wine-light/50 text-cork-200 rounded-lg transition-colors"
+            >
+              Cerrar Sesión
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -172,6 +214,51 @@ export default function AdminPage() {
                 className="w-full px-4 py-2 rounded-lg bg-wine-darker border border-cork-400/20 text-cork-100 placeholder-cork-400 focus:outline-none focus:border-cork-300 text-sm"
               />
             </div>
+            {creatingWine && (
+              <div className="bg-wine-dark/80 border border-green-400/30 rounded-lg p-4 mb-4 backdrop-blur-sm">
+                <h3 className="text-lg font-semibold text-cork-100 mb-3">Nuevo Vino</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                  <input type="text" placeholder="Título *" value={newWine.title || ''} onChange={(e) => setNewWine(prev => ({ ...prev, title: e.target.value }))} className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm" />
+                  <input type="number" placeholder="Año" value={newWine.vintage || ''} onChange={(e) => setNewWine(prev => ({ ...prev, vintage: parseInt(e.target.value) }))} className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm" />
+                  <input type="text" placeholder="Bodega" value={newWine.winery || ''} onChange={(e) => setNewWine(prev => ({ ...prev, winery: e.target.value }))} className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm" />
+                  <input type="text" placeholder="Variedad" value={newWine.variety || ''} onChange={(e) => setNewWine(prev => ({ ...prev, variety: e.target.value }))} className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm" />
+                  <input type="text" placeholder="País" value={newWine.country || ''} onChange={(e) => setNewWine(prev => ({ ...prev, country: e.target.value }))} className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm" />
+                  <input type="text" placeholder="Provincia" value={newWine.province || ''} onChange={(e) => setNewWine(prev => ({ ...prev, province: e.target.value }))} className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm" />
+                  <input type="number" placeholder="Precio" value={newWine.price || ''} onChange={(e) => setNewWine(prev => ({ ...prev, price: parseFloat(e.target.value) }))} className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm" />
+                  <input type="number" placeholder="Puntos" value={newWine.points || ''} onChange={(e) => setNewWine(prev => ({ ...prev, points: parseInt(e.target.value) }))} className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm" />
+                </div>
+                <input type="text" placeholder="Designación" value={newWine.designation || ''} onChange={(e) => setNewWine(prev => ({ ...prev, designation: e.target.value }))} className="w-full px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm mb-3" />
+                <div className="space-y-2 mb-3">
+                  <label className="block text-cork-200 text-sm font-medium">Imagen del vino</label>
+                  {newWine.image_url && (
+                    <div className="relative w-full h-40 rounded overflow-hidden border border-cork-400/20">
+                      <img src={newWine.image_url} alt={newWine.title || 'Vino'} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <input type="file" accept="image/*" onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    try {
+                      const formData = new FormData();
+                      formData.append('file', file);
+                      const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
+                      if (!res.ok) throw new Error('Error en la subida');
+                      const data = await res.json();
+                      setNewWine(prev => ({ ...prev, image_url: data.url }));
+                    } catch (error) {
+                      console.error('Error subiendo imagen:', error);
+                      alert('Error al subir la imagen');
+                    }
+                  }} className="w-full px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-wine-light file:text-cork-100 file:text-sm file:font-semibold file:cursor-pointer" />
+                  <p className="text-cork-400 text-xs">O pega una URL:</p>
+                  <input type="text" placeholder="https://ejemplo.com/imagen.jpg" value={newWine.image_url || ''} onChange={(e) => setNewWine(prev => ({ ...prev, image_url: e.target.value }))} className="w-full px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm" />
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={handleCreate} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors text-sm">Crear</button>
+                  <button onClick={() => { setCreatingWine(false); setNewWine({}); }} className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition-colors text-sm">Cancelar</button>
+                </div>
+              </div>
+            )}
             <div className="grid gap-4">
             {wines
               .filter(wine => wine.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
