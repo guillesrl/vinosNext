@@ -27,6 +27,16 @@ async function getWines(filters?: WineFilter) {
       if (filters.vintage !== undefined) {
         query = query.eq('Vintage', filters.vintage);
       }
+      if (filters.sortField) {
+        const columnMap: Record<string, string> = {
+          points: 'Points',
+          price: 'Price',
+          vintage: 'Vintage',
+          title: 'Title'
+        };
+        const column = columnMap[filters.sortField] || 'Id';
+        query = query.order(column, { ascending: filters.sortDirection === 'asc' });
+      }
     }
 
     const { data, error, count } = await query;
@@ -70,6 +80,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
   if (params.maxPrice) filters.maxPrice = Number(params.maxPrice);
   if (params.minPoints) filters.minPoints = Number(params.minPoints);
   if (params.vintage) filters.vintage = Number(params.vintage);
+  if (params.sortField) filters.sortField = params.sortField;
+  if (params.sortDirection) filters.sortDirection = params.sortDirection as 'asc' | 'desc';
 
   const { wines, total } = await getWines(Object.keys(filters).length > 0 ? filters : undefined);
 

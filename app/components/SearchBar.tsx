@@ -44,7 +44,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
       </div>
 
       {/* Filtros - en columna en móvil, en línea en pantallas más grandes */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-2 bg-wine-dark/30 rounded-lg border border-cork-400/10">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-2 bg-wine-dark/30 rounded-lg border border-cork-400/10 mb-2">
         <div>
           <input
             type="number"
@@ -89,6 +89,31 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
             }))}
           />
         </div>
+      </div>
+
+      {/* Ordenamiento */}
+      <div className="flex gap-2 items-center">
+        <select
+          className={inputClassName}
+          onChange={(e) => {
+            const [field, direction] = e.target.value.split('-');
+            setFilters(prev => ({
+              ...prev,
+              sortField: field || undefined,
+              sortDirection: direction as 'asc' | 'desc' | undefined
+            }));
+          }}
+        >
+          <option value="">Ordenar por...</option>
+          <option value="points-desc">Puntuación ↓</option>
+          <option value="points-asc">Puntuación ↑</option>
+          <option value="price-desc">Precio ↓</option>
+          <option value="price-asc">Precio ↑</option>
+          <option value="vintage-desc">Añada reciente</option>
+          <option value="vintage-asc">Añada antigua</option>
+          <option value="title-asc">Nombre A-Z</option>
+          <option value="title-desc">Nombre Z-A</option>
+        </select>
       </div>
     </form>
   );

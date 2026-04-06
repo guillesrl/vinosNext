@@ -53,6 +53,8 @@ export interface WineFilter {
   maxPrice?: number;
   vintage?: number;
   minPoints?: number;
+  sortField?: string;
+  sortDirection?: 'asc' | 'desc';
 }
 
 export interface WineSortOptions {

@@ -30,6 +30,8 @@ export default function WineList({ initialWines, total }: WineListProps) {
     if (filters.maxPrice) params.set('maxPrice', String(filters.maxPrice));
     if (filters.minPoints) params.set('minPoints', String(filters.minPoints));
     if (filters.vintage) params.set('vintage', String(filters.vintage));
+    if (filters.sortField) params.set('sortField', filters.sortField);
+    if (filters.sortDirection) params.set('sortDirection', filters.sortDirection);
 
     router.push(`/?${params.toString()}`);
     setCurrentPage(1);
