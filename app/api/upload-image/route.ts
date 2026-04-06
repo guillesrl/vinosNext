@@ -5,6 +5,10 @@ export async function POST(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+  console.log('Upload route called');
+  console.log('- URL configured:', !!supabaseUrl);
+  console.log('- Service role configured:', !!serviceRoleKey);
+
   if (!supabaseUrl || !serviceRoleKey) {
     return NextResponse.json({ error: 'Configuración incompleta' }, { status: 500 });
   }
@@ -13,6 +17,7 @@ export async function POST(request: NextRequest) {
 
   const formData = await request.formData();
   const file = formData.get('file') as File;
+  console.log('File received:', file?.name, file?.type, file?.size);
 
   if (!file) {
     return NextResponse.json({ error: 'No se recibió archivo' }, { status: 400 });
@@ -31,7 +36,8 @@ export async function POST(request: NextRequest) {
     });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Supabase upload error:', JSON.stringify(error, null, 2));
+    return NextResponse.json({ error: error.message, details: error }, { status: 500 });
   }
 
   const { data: { publicUrl } } = supabase.storage
