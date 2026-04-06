@@ -13,7 +13,6 @@ interface WineListProps {
 
 export default function WineList({ initialWines, total }: WineListProps) {
   const [wines, setWines] = useState<Wine[]>(initialWines);
-  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
@@ -37,7 +36,6 @@ export default function WineList({ initialWines, total }: WineListProps) {
   }, []);
 
   const handleSearch = (filters: WineFilter) => {
-    setLoading(true);
     const params = new URLSearchParams();
     if (filters.search) params.set('search', filters.search);
     if (filters.minPrice) params.set('minPrice', String(filters.minPrice));
@@ -49,7 +47,6 @@ export default function WineList({ initialWines, total }: WineListProps) {
 
     router.push(`/?${params.toString()}`);
     setCurrentPage(1);
-    setTimeout(() => setLoading(false), 300);
   };
 
   const filteredWines = showFavoritesOnly
@@ -162,29 +159,21 @@ export default function WineList({ initialWines, total }: WineListProps) {
         </div>
       </div>
       
-      {loading ? (
-        <div className="flex justify-center items-center min-h-[200px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cork-300"></div>
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            {currentWines.map((wine, index) => renderWineCard(wine, index))}
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        {currentWines.map((wine, index) => renderWineCard(wine, index))}
+      </div>
 
-          {totalPages > 1 && (
-            <div className="mt-8 mb-12">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-              />
-            </div>
-          )}
-        </>
+      {totalPages > 1 && (
+        <div className="mt-8 mb-12">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
       )}
 
-      {filteredWines.length === 0 && !loading && (
+      {filteredWines.length === 0 && (
         <div className="text-center py-12 text-cork-300">
           {showFavoritesOnly
             ? 'No tienes vinos favoritos aún. Toca el 🤍 para agregar.'
