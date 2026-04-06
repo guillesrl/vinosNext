@@ -3,7 +3,7 @@
 import { Wine, WineFilter } from '../types/wine';
 import SearchBar from './SearchBar';
 import Pagination from './Pagination';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 
 interface WineListProps {
   initialWines: Wine[];
@@ -16,6 +16,12 @@ export default function WineList({ initialWines, total }: WineListProps) {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [activeFilters, setActiveFilters] = useState<WineFilter>({});
   const itemsPerPage = 10;
+  const initialWinesRef = useRef(initialWines);
+  initialWinesRef.current = initialWines;
+  const favoritesRef = useRef(favorites);
+  favoritesRef.current = favorites;
+  const showFavRef = useRef(showFavoritesOnly);
+  showFavRef.current = showFavoritesOnly;
 
   useEffect(() => {
     const stored = localStorage.getItem('wine-favorites');
@@ -32,37 +38,30 @@ export default function WineList({ initialWines, total }: WineListProps) {
     });
   };
 
-  const handleSearch = (filters: WineFilter) => {
+  const handleSearch = useCallback((filters: WineFilter) => {
     setActiveFilters(filters);
     setCurrentPage(1);
-  };
+  }, []);
 
   const filteredWines = useMemo(() => {
-    let result = [...initialWines];
+    let result = [...initialWinesRef.current];
+    const f = activeFilters;
 
-    if (activeFilters.search) {
-      const s = activeFilters.search.toLowerCase();
+    if (f.search) {
+      const s = f.search.toLowerCase();
       result = result.filter(w =>
         w.title?.toLowerCase().includes(s) ||
         w.winery?.toLowerCase().includes(s) ||
         w.variety?.toLowerCase().includes(s)
       );
     }
-    if (activeFilters.minPoints) {
-      result = result.filter(w => (w.points ?? 0) >= activeFilters.minPoints!);
-    }
-    if (activeFilters.minPrice) {
-      result = result.filter(w => (w.price ?? 0) >= activeFilters.minPrice!);
-    }
-    if (activeFilters.maxPrice) {
-      result = result.filter(w => (w.price ?? 0) <= activeFilters.maxPrice!);
-    }
-    if (activeFilters.vintage) {
-      result = result.filter(w => w.vintage === activeFilters.vintage);
-    }
-    if (activeFilters.sortField) {
-      const field = activeFilters.sortField as keyof Wine;
-      const dir = activeFilters.sortDirection === 'asc' ? 1 : -1;
+    if (f.minPoints) result = result.filter(w => (w.points ?? 0) >= f.minPoints!);
+    if (f.minPrice) result = result.filter(w => (w.price ?? 0) >= f.minPrice!);
+    if (f.maxPrice) result = result.filter(w => (w.price ?? 0) <= f.maxPrice!);
+    if (f.vintage) result = result.filter(w => w.vintage === f.vintage);
+    if (f.sortField) {
+      const field = f.sortField as keyof Wine;
+      const dir = f.sortDirection === 'asc' ? 1 : -1;
       result.sort((a, b) => {
         const aVal = a[field];
         const bVal = b[field];
@@ -73,13 +72,12 @@ export default function WineList({ initialWines, total }: WineListProps) {
         return ((aVal as number) - (bVal as number)) * dir;
       });
     }
-
-    if (showFavoritesOnly) {
-      result = result.filter(w => favorites.has(w.id || ''));
+    if (showFavRef.current) {
+      result = result.filter(w => favoritesRef.current.has(w.id || ''));
     }
 
     return result;
-  }, [initialWines, activeFilters, showFavoritesOnly, favorites]);
+  }, [initialWines, activeFilters]);
 
   const totalPages = Math.ceil(filteredWines.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
