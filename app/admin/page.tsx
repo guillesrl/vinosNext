@@ -273,8 +273,11 @@ export default function AdminPage() {
                                method: 'POST',
                                body: formData,
                              });
-                             if (!res.ok) throw new Error('Error en la subida');
-                             const data = await res.json();
+                              if (!res.ok) {
+                                const errData = await res.json();
+                                throw new Error(errData.error || errData.details?.message || 'Error en la subida');
+                              }
+                              const data = await res.json();
                              setEditingWine(prev => prev ? { ...prev, image_url: data.url } : prev);
                            } catch (error) {
                              console.error('Error subiendo imagen:', error);
