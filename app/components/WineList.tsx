@@ -3,7 +3,7 @@
 import { Wine, WineFilter } from '../types/wine';
 import SearchBar from './SearchBar';
 import Pagination from './Pagination';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 interface WineListProps {
   initialWines: Wine[];
@@ -11,7 +11,6 @@ interface WineListProps {
 }
 
 export default function WineList({ initialWines, total }: WineListProps) {
-  const [wines, setWines] = useState<Wine[]>(initialWines);
   const [currentPage, setCurrentPage] = useState(1);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
@@ -19,12 +18,11 @@ export default function WineList({ initialWines, total }: WineListProps) {
   const itemsPerPage = 10;
 
   useEffect(() => {
-    setWines(initialWines);
     const stored = localStorage.getItem('wine-favorites');
     if (stored) setFavorites(new Set(JSON.parse(stored)));
-  }, [initialWines]);
+  }, []);
 
-  const toggleFavorite = useCallback((wineId: string) => {
+  const toggleFavorite = (wineId: string) => {
     setFavorites(prev => {
       const next = new Set(prev);
       if (next.has(wineId)) next.delete(wineId);
@@ -32,12 +30,12 @@ export default function WineList({ initialWines, total }: WineListProps) {
       localStorage.setItem('wine-favorites', JSON.stringify([...next]));
       return next;
     });
-  }, []);
+  };
 
-  const handleSearch = useCallback((filters: WineFilter) => {
+  const handleSearch = (filters: WineFilter) => {
     setActiveFilters(filters);
     setCurrentPage(1);
-  }, []);
+  };
 
   const filteredWines = useMemo(() => {
     let result = [...initialWines];
