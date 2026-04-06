@@ -3,8 +3,7 @@
 import { Wine, WineFilter } from '../types/wine';
 import SearchBar from './SearchBar';
 import Pagination from './Pagination';
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 interface WineListProps {
   initialWines: Wine[];
@@ -16,8 +15,8 @@ export default function WineList({ initialWines, total }: WineListProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<WineFilter>({});
   const itemsPerPage = 10;
-  const router = useRouter();
 
   useEffect(() => {
     setWines(initialWines);
@@ -35,23 +34,54 @@ export default function WineList({ initialWines, total }: WineListProps) {
     });
   }, []);
 
-  const handleSearch = (filters: WineFilter) => {
-    const params = new URLSearchParams();
-    if (filters.search) params.set('search', filters.search);
-    if (filters.minPrice) params.set('minPrice', String(filters.minPrice));
-    if (filters.maxPrice) params.set('maxPrice', String(filters.maxPrice));
-    if (filters.minPoints) params.set('minPoints', String(filters.minPoints));
-    if (filters.vintage) params.set('vintage', String(filters.vintage));
-    if (filters.sortField) params.set('sortField', filters.sortField);
-    if (filters.sortDirection) params.set('sortDirection', filters.sortDirection);
-
-    router.push(`/?${params.toString()}`);
+  const handleSearch = useCallback((filters: WineFilter) => {
+    setActiveFilters(filters);
     setCurrentPage(1);
-  };
+  }, []);
 
-  const filteredWines = showFavoritesOnly
-    ? wines.filter(w => favorites.has(w.id || ''))
-    : wines;
+  const filteredWines = useMemo(() => {
+    let result = [...initialWines];
+
+    if (activeFilters.search) {
+      const s = activeFilters.search.toLowerCase();
+      result = result.filter(w =>
+        w.title?.toLowerCase().includes(s) ||
+        w.winery?.toLowerCase().includes(s) ||
+        w.variety?.toLowerCase().includes(s)
+      );
+    }
+    if (activeFilters.minPoints) {
+      result = result.filter(w => (w.points ?? 0) >= activeFilters.minPoints!);
+    }
+    if (activeFilters.minPrice) {
+      result = result.filter(w => (w.price ?? 0) >= activeFilters.minPrice!);
+    }
+    if (activeFilters.maxPrice) {
+      result = result.filter(w => (w.price ?? 0) <= activeFilters.maxPrice!);
+    }
+    if (activeFilters.vintage) {
+      result = result.filter(w => w.vintage === activeFilters.vintage);
+    }
+    if (activeFilters.sortField) {
+      const field = activeFilters.sortField as keyof Wine;
+      const dir = activeFilters.sortDirection === 'asc' ? 1 : -1;
+      result.sort((a, b) => {
+        const aVal = a[field];
+        const bVal = b[field];
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null) return dir;
+        if (bVal == null) return -dir;
+        if (typeof aVal === 'string' && typeof bVal === 'string') return aVal.localeCompare(bVal) * dir;
+        return ((aVal as number) - (bVal as number)) * dir;
+      });
+    }
+
+    if (showFavoritesOnly) {
+      result = result.filter(w => favorites.has(w.id || ''));
+    }
+
+    return result;
+  }, [initialWines, activeFilters, showFavoritesOnly, favorites]);
 
   const totalPages = Math.ceil(filteredWines.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -142,7 +172,7 @@ export default function WineList({ initialWines, total }: WineListProps) {
       
       <div className="flex justify-between items-center mb-4">
         <div className="text-cork-200">
-          Total de vinos: {total}
+          Total de vinos: {filteredWines.length}
         </div>
         <div className="flex items-center gap-4">
           <button
@@ -182,4 +212,4 @@ export default function WineList({ initialWines, total }: WineListProps) {
       )}
     </div>
   );
-} 
+}
