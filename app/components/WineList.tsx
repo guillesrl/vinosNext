@@ -3,7 +3,7 @@
 import { Wine, WineFilter } from '../types/wine';
 import SearchBar from './SearchBar';
 import Pagination from './Pagination';
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 interface WineListProps {
   initialWines: Wine[];
@@ -16,151 +16,79 @@ export default function WineList({ initialWines, total }: WineListProps) {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [activeFilters, setActiveFilters] = useState<WineFilter>({});
   const itemsPerPage = 10;
-  const initialWinesRef = useRef(initialWines);
-  initialWinesRef.current = initialWines;
-  const favoritesRef = useRef(favorites);
-  favoritesRef.current = favorites;
-  const showFavRef = useRef(showFavoritesOnly);
-  showFavRef.current = showFavoritesOnly;
 
   useEffect(() => {
     const stored = localStorage.getItem('wine-favorites');
-    if (stored) setFavorites(new Set(JSON.parse(stored)));
+    if (stored) {
+      try {
+        setFavorites(new Set(JSON.parse(stored)));
+      } catch (e) {
+        console.error('Error loading favorites:', e);
+      }
+    }
   }, []);
 
   const toggleFavorite = (wineId: string) => {
     setFavorites(prev => {
       const next = new Set(prev);
-      if (next.has(wineId)) next.delete(wineId);
-      else next.add(wineId);
+      if (next.has(wineId)) {
+        next.delete(wineId);
+      } else {
+        next.add(wineId);
+      }
       localStorage.setItem('wine-favorites', JSON.stringify([...next]));
       return next;
     });
   };
 
-  const handleSearch = useCallback((filters: WineFilter) => {
+  const handleSearch = (filters: WineFilter) => {
     setActiveFilters(filters);
     setCurrentPage(1);
-  }, []);
+  };
 
-  const filteredWines = useMemo(() => {
-    let result = [...initialWinesRef.current];
-    const f = activeFilters;
+  let result = initialWines;
 
-    if (f.search) {
-      const s = f.search.toLowerCase();
-      result = result.filter(w =>
-        w.title?.toLowerCase().includes(s) ||
-        w.winery?.toLowerCase().includes(s) ||
-        w.variety?.toLowerCase().includes(s)
-      );
-    }
-    if (f.minPoints) result = result.filter(w => (w.points ?? 0) >= f.minPoints!);
-    if (f.minPrice) result = result.filter(w => (w.price ?? 0) >= f.minPrice!);
-    if (f.maxPrice) result = result.filter(w => (w.price ?? 0) <= f.maxPrice!);
-    if (f.vintage) result = result.filter(w => w.vintage === f.vintage);
-    if (f.sortField) {
-      const field = f.sortField as keyof Wine;
-      const dir = f.sortDirection === 'asc' ? 1 : -1;
-      result.sort((a, b) => {
-        const aVal = a[field];
-        const bVal = b[field];
-        if (aVal == null && bVal == null) return 0;
-        if (aVal == null) return dir;
-        if (bVal == null) return -dir;
-        if (typeof aVal === 'string' && typeof bVal === 'string') return aVal.localeCompare(bVal) * dir;
-        return ((aVal as number) - (bVal as number)) * dir;
-      });
-    }
-    if (showFavRef.current) {
-      result = result.filter(w => favoritesRef.current.has(w.id || ''));
-    }
+  if (activeFilters.search) {
+    const s = activeFilters.search.toLowerCase();
+    result = result.filter(w =>
+      w.title?.toLowerCase().includes(s) ||
+      w.winery?.toLowerCase().includes(s) ||
+      w.variety?.toLowerCase().includes(s)
+    );
+  }
+  if (activeFilters.minPoints) {
+    result = result.filter(w => (w.points ?? 0) >= activeFilters.minPoints!);
+  }
+  if (activeFilters.minPrice) {
+    result = result.filter(w => (w.price ?? 0) >= activeFilters.minPrice!);
+  }
+  if (activeFilters.maxPrice) {
+    result = result.filter(w => (w.price ?? 0) <= activeFilters.maxPrice!);
+  }
+  if (activeFilters.vintage) {
+    result = result.filter(w => w.vintage === activeFilters.vintage);
+  }
+  if (activeFilters.sortField) {
+    const field = activeFilters.sortField as keyof Wine;
+    const dir = activeFilters.sortDirection === 'asc' ? 1 : -1;
+    result = [...result].sort((a, b) => {
+      const aVal = a[field];
+      const bVal = b[field];
+      if (aVal == null && bVal == null) return 0;
+      if (aVal == null) return dir;
+      if (bVal == null) return -dir;
+      if (typeof aVal === 'string' && typeof bVal === 'string') return aVal.localeCompare(bVal) * dir;
+      return ((aVal as number) - (bVal as number)) * dir;
+    });
+  }
+  if (showFavoritesOnly) {
+    result = result.filter(w => favorites.has(w.id || ''));
+  }
 
-    return result;
-  }, [initialWines, activeFilters]);
-
-  const totalPages = Math.ceil(filteredWines.length / itemsPerPage);
+  const totalPages = Math.ceil(result.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentWines = filteredWines.slice(startIndex, endIndex);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const renderWineCard = (wine: Wine, index: number) => {
-    const isFav = favorites.has(wine.id || '');
-    return (
-      <div
-        key={wine.id || index}
-        className="bg-wine-dark/80 border border-cork-400/20 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-cork-400/40 backdrop-blur-sm text-sm group"
-      >
-        <div className="flex">
-          <div className="flex-1 p-4">
-            <div className="flex justify-between items-start mb-3">
-              <h3 className="text-base font-semibold text-cork-100 line-clamp-2">
-                {wine.title || wine.name || 'Sin título'}
-                {!wine.title && !wine.name && <span className="text-red-500"> (Falta título)</span>}
-              </h3>
-              <div className="flex items-center gap-2 ml-2">
-                <button
-                  onClick={() => wine.id && toggleFavorite(wine.id)}
-                  className="text-lg hover:scale-125 transition-transform"
-                >
-                  {isFav ? '❤️' : '🤍'}
-                </button>
-                <span className="px-2 py-1 bg-wine-light/30 rounded-full text-cork-200 text-xs whitespace-nowrap">
-                  {wine.vintage || 'N/A'}
-                </span>
-              </div>
-            </div>
-            <div className="space-y-1.5 text-cork-200">
-              <p className="flex justify-between">
-                <span className="text-cork-300">Bodega</span>
-                <span className="text-right flex-1 ml-4 line-clamp-1">{wine.winery || 'N/A'}</span>
-              </p>
-              <p className="flex justify-between">
-                <span className="text-cork-300">Variedad</span>
-                <span className="text-right flex-1 ml-4 line-clamp-1">{wine.variety || 'N/A'}</span>
-              </p>
-              <p className="flex justify-between">
-                <span className="text-cork-300">Región</span>
-                <span className="text-right flex-1 ml-4 line-clamp-1">
-                  {[wine.province, wine.country].filter(Boolean).join(', ') || 'N/A'}
-                </span>
-              </p>
-              <div className="pt-3 mt-3 border-t border-cork-400/20 flex justify-between items-center">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-8 h-8 rounded-full bg-wine-light/30 flex items-center justify-center">
-                    <span className="text-cork-100 font-bold text-sm">{wine.points || '0'}</span>
-                  </div>
-                  <span className="text-cork-300 text-xs">pts</span>
-                </div>
-                <span className="text-xl font-bold text-cork-100">
-                  {wine.price ? `$${wine.price}` : 'N/A'}
-                </span>
-              </div>
-              {wine.designation && (
-                <div className="mt-2 text-xs text-cork-300 italic line-clamp-1">
-                  {wine.designation}
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="w-24 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center p-2 relative overflow-hidden">
-            <div className="absolute inset-0 bg-wine-light/5 group-hover:bg-wine-light/10 transition-colors duration-300"></div>
-            <img
-              src={wine.image_url || '/wine-bottle.svg'}
-              alt={wine.title || 'Vino'}
-              className="w-full h-auto object-contain relative z-10 drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
-              onError={(e) => { (e.target as HTMLImageElement).src = '/wine-bottle.svg'; }}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  };
+  const currentWines = result.slice(startIndex, endIndex);
 
   return (
     <div className="container mx-auto px-4">
@@ -168,7 +96,7 @@ export default function WineList({ initialWines, total }: WineListProps) {
       
       <div className="flex justify-between items-center mb-4">
         <div className="text-cork-200">
-          Total de vinos: {filteredWines.length}
+          Total de vinos: {result.length}
         </div>
         <div className="flex items-center gap-4">
           <button
@@ -180,13 +108,84 @@ export default function WineList({ initialWines, total }: WineListProps) {
             {showFavoritesOnly ? '❤️' : '🤍'} Favoritos ({favorites.size})
           </button>
           <div className="text-cork-300 text-sm">
-            Mostrando {startIndex + 1}-{Math.min(endIndex, filteredWines.length)} de {filteredWines.length}
+            Mostrando {startIndex + 1}-{Math.min(endIndex, result.length)} de {result.length}
           </div>
         </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        {currentWines.map((wine, index) => renderWineCard(wine, index))}
+        {currentWines.map((wine, index) => {
+          const isFav = favorites.has(wine.id || '');
+          return (
+            <div
+              key={wine.id || index}
+              className="bg-wine-dark/80 border border-cork-400/20 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-cork-400/40 backdrop-blur-sm text-sm group"
+            >
+              <div className="flex">
+                <div className="flex-1 p-4">
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="text-base font-semibold text-cork-100 line-clamp-2">
+                      {wine.title || wine.name || 'Sin título'}
+                      {!wine.title && !wine.name && <span className="text-red-500"> (Falta título)</span>}
+                    </h3>
+                    <div className="flex items-center gap-2 ml-2">
+                      <button
+                        onClick={() => wine.id && toggleFavorite(wine.id)}
+                        className="text-lg hover:scale-125 transition-transform"
+                      >
+                        {isFav ? '❤️' : '🤍'}
+                      </button>
+                      <span className="px-2 py-1 bg-wine-light/30 rounded-full text-cork-200 text-xs whitespace-nowrap">
+                        {wine.vintage || 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5 text-cork-200">
+                    <p className="flex justify-between">
+                      <span className="text-cork-300">Bodega</span>
+                      <span className="text-right flex-1 ml-4 line-clamp-1">{wine.winery || 'N/A'}</span>
+                    </p>
+                    <p className="flex justify-between">
+                      <span className="text-cork-300">Variedad</span>
+                      <span className="text-right flex-1 ml-4 line-clamp-1">{wine.variety || 'N/A'}</span>
+                    </p>
+                    <p className="flex justify-between">
+                      <span className="text-cork-300">Región</span>
+                      <span className="text-right flex-1 ml-4 line-clamp-1">
+                        {[wine.province, wine.country].filter(Boolean).join(', ') || 'N/A'}
+                      </span>
+                    </p>
+                    <div className="pt-3 mt-3 border-t border-cork-400/20 flex justify-between items-center">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-8 h-8 rounded-full bg-wine-light/30 flex items-center justify-center">
+                          <span className="text-cork-100 font-bold text-sm">{wine.points || '0'}</span>
+                        </div>
+                        <span className="text-cork-300 text-xs">pts</span>
+                      </div>
+                      <span className="text-xl font-bold text-cork-100">
+                        {wine.price ? `$${wine.price}` : 'N/A'}
+                      </span>
+                    </div>
+                    {wine.designation && (
+                      <div className="mt-2 text-xs text-cork-300 italic line-clamp-1">
+                        {wine.designation}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="w-24 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center p-2 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-wine-light/5 group-hover:bg-wine-light/10 transition-colors duration-300"></div>
+                  <img
+                    src={wine.image_url || '/wine-bottle.svg'}
+                    alt={wine.title || 'Vino'}
+                    className="w-full h-auto object-contain relative z-10 drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => { (e.target as HTMLImageElement).src = '/wine-bottle.svg'; }}
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {totalPages > 1 && (
@@ -194,12 +193,14 @@ export default function WineList({ initialWines, total }: WineListProps) {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={handlePageChange}
+            onPageChange={(page) => {
+              setCurrentPage(page);
+            }}
           />
         </div>
       )}
 
-      {filteredWines.length === 0 && (
+      {result.length === 0 && (
         <div className="text-center py-12 text-cork-300">
           {showFavoritesOnly
             ? 'No tienes vinos favoritos aún. Toca el 🤍 para agregar.'
