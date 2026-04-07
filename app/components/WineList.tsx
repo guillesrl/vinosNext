@@ -119,7 +119,7 @@ export default function WineList({ initialWines }: WineListProps) {
           return (
             <div
               key={wine.id || index}
-              className="bg-wine-dark/80 border border-cork-400/20 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-cork-400/40 backdrop-blur-sm text-sm group min-h-[192px]"
+              className="bg-wine-dark/80 border border-cork-400/20 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-cork-400/40 backdrop-blur-sm text-sm group h-48"
             >
               <div className="flex items-stretch">
                 <div className="flex-1 p-2">
