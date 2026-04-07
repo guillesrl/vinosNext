@@ -178,7 +178,7 @@ export default function WineList({ initialWines }: WineListProps) {
                   <img
                     src={wine.image_url || '/wine-bottle.svg'}
                     alt={wine.title || 'Vino'}
-                    className="w-full h-auto object-contain relative z-10 drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-contain block relative z-10 drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
                     onError={(e) => { (e.target as HTMLImageElement).src = '/wine-bottle.svg'; }}
                   />
                 </div>
