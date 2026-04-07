@@ -10,7 +10,7 @@ interface WineListProps {
   total: number;
 }
 
-export default function WineList({ initialWines, total }: WineListProps) {
+export default function WineList({ initialWines }: WineListProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
