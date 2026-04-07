@@ -121,7 +121,7 @@ export default function WineList({ initialWines }: WineListProps) {
               key={wine.id || index}
               className="bg-wine-dark/80 border border-cork-400/20 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-cork-400/40 backdrop-blur-sm text-sm group min-h-[192px]"
             >
-              <div className="flex items-center">
+              <div className="flex items-stretch">
                 <div className="flex-1 p-2">
                   <div className="flex justify-between items-start mb-3">
                     <h3 className="text-base font-semibold text-cork-100 line-clamp-2">
@@ -173,7 +173,7 @@ export default function WineList({ initialWines }: WineListProps) {
                     )}
                   </div>
                 </div>
-                <div className="w-24 h-48 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center p-0 relative overflow-hidden">
+                <div className="w-24 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center relative overflow-hidden">
                   <div className="absolute inset-0 bg-wine-light/5 group-hover:bg-wine-light/10 transition-colors duration-300"></div>
                   <img
                     src={wine.image_url || '/wine-bottle.svg'}
