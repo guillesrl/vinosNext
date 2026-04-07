@@ -119,7 +119,7 @@ export default function WineList({ initialWines }: WineListProps) {
           return (
             <div
               key={wine.id || index}
-              className="bg-wine-dark/80 border border-cork-400/20 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-cork-400/40 backdrop-blur-sm text-sm group"
+              className="bg-wine-dark/80 border border-cork-400/20 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-cork-400/40 backdrop-blur-sm text-sm group min-h-[192px]"
             >
               <div className="flex">
                 <div className="flex-1 p-4">
@@ -173,12 +173,12 @@ export default function WineList({ initialWines }: WineListProps) {
                     )}
                   </div>
                 </div>
-                <div className="w-24 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center p-2 relative overflow-hidden">
+                <div className="w-24 h-48 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center p-2 relative overflow-hidden">
                   <div className="absolute inset-0 bg-wine-light/5 group-hover:bg-wine-light/10 transition-colors duration-300"></div>
                   <img
                     src={wine.image_url || '/wine-bottle.svg'}
                     alt={wine.title || 'Vino'}
-                    className="w-full h-auto object-contain relative z-10 drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-contain relative z-10 drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
                     onError={(e) => { (e.target as HTMLImageElement).src = '/wine-bottle.svg'; }}
                   />
                 </div>
