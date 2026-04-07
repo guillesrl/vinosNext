@@ -173,7 +173,7 @@ export default function WineList({ initialWines }: WineListProps) {
                     )}
                   </div>
                 </div>
-                <div className="w-24 h-48 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center p-1 relative overflow-hidden">
+                <div className="w-24 h-48 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center p-3 relative overflow-hidden">
                   <div className="absolute inset-0 bg-wine-light/5 group-hover:bg-wine-light/10 transition-colors duration-300"></div>
                   <img
                     src={wine.image_url || '/wine-bottle.svg'}
