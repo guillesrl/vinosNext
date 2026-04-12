@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 interface ContactFormData {
   name: string;
@@ -17,8 +18,7 @@ export default function ContactForm() {
     message: ''
   });
 
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [responseMessage, setResponseMessage] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading'>('idle');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,8 +29,7 @@ export default function ContactForm() {
       // Simulamos una llamada asíncrona
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      setStatus('success');
-      setResponseMessage('¡Gracias por tu mensaje! Te responderemos pronto.');
+      toast.success('¡Gracias por tu mensaje! Te responderemos pronto.');
       setFormData({
         name: '',
         email: '',
@@ -38,8 +37,9 @@ export default function ContactForm() {
         message: ''
       });
     } catch {
-      setStatus('error');
-      setResponseMessage('Hubo un error al enviar tu mensaje. Por favor, intenta nuevamente.');
+      toast.error('Hubo un error al enviar tu mensaje. Por favor, intenta nuevamente.');
+    } finally {
+      setStatus('idle');
     }
   };
 
@@ -141,16 +141,6 @@ export default function ContactForm() {
             )}
           </button>
         </div>
-
-        {responseMessage && (
-          <div
-            className={`p-4 rounded-lg text-center ${
-              status === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-            }`}
-          >
-            {responseMessage}
-          </div>
-        )}
       </form>
     </div>
   );

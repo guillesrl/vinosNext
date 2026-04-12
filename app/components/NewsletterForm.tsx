@@ -1,27 +1,27 @@
 'use client';
 
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 export default function NewsletterForm() {
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus('loading');
+    setIsLoading(true);
 
     try {
       // Aquí iría la llamada a la API para guardar el email
       // Simulamos una llamada asíncrona
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      setStatus('success');
-      setMessage('¡Gracias por suscribirte a nuestro boletín!');
+      toast.success('¡Gracias por suscribirte a nuestro boletín!');
       setEmail('');
     } catch {
-      setStatus('error');
-      setMessage('Hubo un error al procesar tu suscripción. Por favor, intenta nuevamente.');
+      toast.error('Hubo un error al procesar tu suscripción. Por favor, intenta nuevamente.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -46,14 +46,14 @@ export default function NewsletterForm() {
 
         <button
           type="submit"
-          disabled={status === 'loading'}
+          disabled={isLoading}
           className={`w-full px-6 py-2 text-white rounded-lg transition-colors ${
-            status === 'loading'
+            isLoading
               ? 'bg-purple-400 cursor-not-allowed'
               : 'bg-purple-600 hover:bg-purple-700'
           }`}
         >
-          {status === 'loading' ? (
+          {isLoading ? (
             <span className="flex items-center justify-center">
               <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -65,16 +65,6 @@ export default function NewsletterForm() {
             'Suscribirse'
           )}
         </button>
-
-        {message && (
-          <div
-            className={`p-4 rounded-lg text-center ${
-              status === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-            }`}
-          >
-            {message}
-          </div>
-        )}
       </form>
     </div>
   );
