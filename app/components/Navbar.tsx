@@ -26,7 +26,7 @@ export default function Navbar() {
             </Link>
           </div>
           <div className="flex items-center">
-            <Link href="/#contact" className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-cork-300 hover:bg-wine-dark/30 hover:text-cork-100 transition-colors">
+            <Link href="#contact" className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-cork-300 hover:bg-wine-dark/30 hover:text-cork-100 transition-colors">
               <span>📧</span>
               <span className="hidden md:block">Contacto</span>
             </Link>
