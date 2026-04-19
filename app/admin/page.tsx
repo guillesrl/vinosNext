@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabase';
 import { Wine } from '../types/wine';
+import Image from 'next/image';
+import toast from 'react-hot-toast';
 
 export default function AdminPage() {
   const [wines, setWines] = useState<Wine[]>([]);
@@ -61,8 +63,9 @@ export default function AdminPage() {
     e.preventDefault();
     if (password === 'admin123') {
       setAuthenticated(true);
+      toast.success('Bienvenido al panel de administración');
     } else {
-      alert('Contraseña incorrecta');
+      toast.error('Contraseña incorrecta');
     }
   };
 
@@ -95,10 +98,10 @@ export default function AdminPage() {
 
       setEditingWine(null);
       loadWines();
-      alert('Vino actualizado correctamente');
+      toast.success('Vino actualizado correctamente');
     } catch (error) {
       console.error('Error actualizando vino:', error);
-      alert('Error al actualizar el vino');
+      toast.error('Error al actualizar el vino');
     }
   };
 
@@ -114,10 +117,10 @@ export default function AdminPage() {
       if (error) throw error;
 
       loadWines();
-      alert('Vino eliminado correctamente');
+      toast.success('Vino eliminado correctamente');
     } catch (error) {
       console.error('Error eliminando vino:', error);
-      alert('Error al eliminar el vino');
+      toast.error('Error al eliminar el vino');
     }
   };
 
@@ -146,10 +149,10 @@ export default function AdminPage() {
       setCreatingWine(false);
       setNewWine({});
       loadWines();
-      alert('Vino creado correctamente');
+      toast.success('Vino creado correctamente');
     } catch (error) {
       console.error('Error creando vino:', error);
-      alert('Error al crear el vino');
+      toast.error('Error al crear el vino');
     }
   };
 
@@ -232,7 +235,7 @@ export default function AdminPage() {
                   <label className="block text-cork-200 text-sm font-medium">Imagen del vino</label>
                   {newWine.image_url && (
                     <div className="relative w-full h-40 rounded overflow-hidden border border-cork-400/20">
-                      <img src={newWine.image_url} alt={newWine.title || 'Vino'} className="w-full h-full object-cover" />
+                      <Image src={newWine.image_url} alt={newWine.title || 'Vino'} fill className="object-cover" />
                     </div>
                   )}
                   <input type="file" accept="image/*" onChange={async (e) => {
@@ -247,7 +250,7 @@ export default function AdminPage() {
                       setNewWine(prev => ({ ...prev, image_url: data.url }));
                     } catch (error) {
                       console.error('Error subiendo imagen:', error);
-                      alert('Error al subir la imagen');
+                      toast.error('Error al subir la imagen');
                     }
                   }} className="w-full px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-wine-light file:text-cork-100 file:text-sm file:font-semibold file:cursor-pointer" />
                   <p className="text-cork-400 text-xs">O pega una URL:</p>
@@ -340,10 +343,11 @@ export default function AdminPage() {
                       <label className="block text-cork-200 text-sm font-medium">Imagen del vino</label>
                       {editingWine!.image_url && (
                         <div className="relative w-full h-40 rounded overflow-hidden border border-cork-400/20">
-                          <img
+                          <Image
                             src={editingWine!.image_url}
                             alt={editingWine!.title || 'Vino'}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
                           />
                         </div>
                       )}
@@ -368,7 +372,7 @@ export default function AdminPage() {
                              setEditingWine(prev => prev ? { ...prev, image_url: data.url } : prev);
                            } catch (error) {
                              console.error('Error subiendo imagen:', error);
-                             alert('Error al subir la imagen');
+                             toast.error('Error al subir la imagen');
                            }
                          }}
                         className="w-full px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-wine-light file:text-cork-100 file:text-sm file:font-semibold file:cursor-pointer"
@@ -424,11 +428,12 @@ export default function AdminPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="w-20 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center p-2 rounded">
-                      <img
+                    <div className="w-20 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center p-2 rounded relative h-24">
+                      <Image
                         src={wine.image_url || '/wine-bottle.svg'}
                         alt={wine.title || 'Vino'}
-                        className="w-full h-auto object-contain drop-shadow-lg"
+                        fill
+                        className="object-contain drop-shadow-lg"
                         onError={(e) => { (e.target as HTMLImageElement).src = '/wine-bottle.svg'; }}
                       />
                     </div>

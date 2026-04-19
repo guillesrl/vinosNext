@@ -4,6 +4,7 @@ import { Wine, WineFilter } from '../types/wine';
 import SearchBar from './SearchBar';
 import Pagination from './Pagination';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 interface WineListProps {
   initialWines: Wine[];
@@ -175,9 +176,11 @@ export default function WineList({ initialWines }: WineListProps) {
                 </div>
                 <div className="w-24 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center relative overflow-hidden">
                   <div className="absolute inset-0 bg-wine-light/5 group-hover:bg-wine-light/10 transition-colors duration-300"></div>
-                  <img
+                  <Image
                     src={wine.image_url || '/wine-bottle.svg'}
                     alt={wine.title || 'Vino'}
+                    width={96}
+                    height={224}
                     className="w-full h-full object-contain block relative z-10 drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
                     onError={(e) => { (e.target as HTMLImageElement).src = '/wine-bottle.svg'; }}
                   />
