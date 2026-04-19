@@ -1,4 +1,5 @@
 import WineList from './components/WineList';
+import Stats from './components/Stats';
 import { supabase } from './utils/supabase';
 import { WineFilter } from './types/wine';
 
@@ -103,6 +104,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
           </a>
         </div>
 
+        <Stats wines={wines} />
         <WineList initialWines={wines} total={total} />
       </div>
     </main>
