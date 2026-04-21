@@ -134,19 +134,19 @@ export default function WineList({ initialWines }: WineListProps) {
               )}
               <div className="flex items-stretch">
                 <div className="flex-1 p-2">
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-base font-semibold text-cork-100 line-clamp-2">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-base font-semibold text-cork-100 line-clamp-2 flex-1">
                       {wine.title || wine.name || 'Sin título'}
                       {!wine.title && !wine.name && <span className="text-red-500"> (Falta título)</span>}
                     </h3>
-                    <span className="px-2 py-1 bg-wine-light/30 rounded-full text-cork-200 text-xs whitespace-nowrap">
+                  </div>
+                  <div className="space-y-1 text-cork-200">
+                    <span className="px-1.5 py-0.5 bg-wine-light/30 rounded text-cork-200 text-xs whitespace-nowrap">
                       {wine.vintage || 'N/A'}
                     </span>
-                  </div>
-                  <div className="space-y-1.5 text-cork-200">
-                    <p className="flex justify-between">
+                    <p className="flex justify-between text-xs">
                       <span className="text-cork-300">Bodega</span>
-                      <span className="text-right flex-1 ml-4 line-clamp-1">{wine.winery || 'N/A'}</span>
+                      <span className="text-right flex-1 ml-2 line-clamp-1">{wine.winery || 'N/A'}</span>
                     </p>
                     <p className="flex justify-between">
                       <span className="text-cork-300">Variedad</span>
