@@ -97,3 +97,8 @@ Contacto
 - **Tarea**: que has hecho?
 - **Herramientas**: lectura de archivos
 - **Resultado**: Hecho.
+
+## 2026-04-21 16:08
+- **Tarea**: podemos mover la pasword de admin a el archivo .env para que sea mas seguro?
+- **Herramientas**: lectura de archivos, editor, escritura de archivos, bash
+- **Resultado**: Creada API route `/api/admin-auth` para validación server-side y añadida variable `ADMIN_PASSWORD` a `.env.example`. Configura tu contraseña en `.env.local` con `ADMIN_PASSWORD="tu-password"`.
