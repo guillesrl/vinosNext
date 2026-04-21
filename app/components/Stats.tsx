@@ -66,11 +66,11 @@ export default function Stats({ wines }: StatsProps) {
     <div className="mb-6">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-wine-dark/80 border border-cork-400/20 rounded-lg p-4 backdrop-blur-sm hover:border-cork-400/40 transition-all duration-300 flex items-center justify-between"
+        className="w-full bg-wine-dark/80 border border-cork-400/20 rounded-lg p-3 backdrop-blur-sm hover:border-cork-400/40 transition-all duration-300 flex items-center justify-between"
       >
         <div className="flex items-center gap-2">
-          <span className="text-2xl">📊</span>
-          <h2 className="text-xl font-bold text-cork-100">Estadísticas de la Colección</h2>
+          <span className="text-lg">📊</span>
+          <h2 className="text-base font-semibold text-cork-100">Estadísticas de la Colección</h2>
         </div>
         <span className="text-cork-300 text-2xl">{isOpen ? '−' : '+'}</span>
       </button>
