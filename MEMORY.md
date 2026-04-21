@@ -112,3 +112,8 @@ Contacto
 - **Tarea**: como esta el cpu ?
 - **Herramientas**: bash
 - **Resultado**: CPU al 6.7% de uso.
+
+## 2026-04-21 18:42
+- **Tarea**: En admin el buscador solo mira en la página actual
+- **Herramientas**: lectura de archivos, editor, bash
+- **Resultado**: Subido.

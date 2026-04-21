@@ -25,6 +25,7 @@ export default function AdminPage() {
     if (authenticated) {
       loadWines(1, searchTerm);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authenticated]);
 
   const loadWines = async (page = 1, search = '') => {
