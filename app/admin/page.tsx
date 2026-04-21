@@ -55,13 +55,23 @@ export default function AdminPage() {
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'admin123') {
-      setAuthenticated(true);
-      toast.success('Bienvenido al panel de administración');
-    } else {
-      toast.error('Contraseña incorrecta');
+    try {
+      const res = await fetch('/api/admin-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setAuthenticated(true);
+        toast.success('Bienvenido al panel de administración');
+      } else {
+        toast.error(data.error || 'Contraseña incorrecta');
+      }
+    } catch {
+      toast.error('Error de conexión');
     }
   };
 
