@@ -129,17 +129,9 @@ export default function WineList({ initialWines }: WineListProps) {
                       {wine.title || wine.name || 'Sin título'}
                       {!wine.title && !wine.name && <span className="text-red-500"> (Falta título)</span>}
                     </h3>
-                    <div className="flex items-center gap-2 ml-2">
-                      <button
-                        onClick={() => wine.id && toggleFavorite(wine.id)}
-                        className="text-lg hover:scale-125 transition-transform"
-                      >
-                        {isFav ? '❤️' : '🤍'}
-                      </button>
-                      <span className="px-2 py-1 bg-wine-light/30 rounded-full text-cork-200 text-xs whitespace-nowrap">
-                        {wine.vintage || 'N/A'}
-                      </span>
-                    </div>
+                    <span className="px-2 py-1 bg-wine-light/30 rounded-full text-cork-200 text-xs whitespace-nowrap">
+                      {wine.vintage || 'N/A'}
+                    </span>
                   </div>
                   <div className="space-y-1.5 text-cork-200">
                     <p className="flex justify-between">
@@ -184,6 +176,12 @@ export default function WineList({ initialWines }: WineListProps) {
                     className="w-full h-full object-contain block relative z-10 drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
                     onError={(e) => { (e.target as HTMLImageElement).src = '/wine-bottle.svg'; }}
                   />
+                  <button
+                    onClick={() => wine.id && toggleFavorite(wine.id)}
+                    className="absolute bottom-1 right-1 text-lg hover:scale-125 transition-transform z-20"
+                  >
+                    {isFav ? '❤️' : '🤍'}
+                  </button>
                 </div>
               </div>
             </div>
