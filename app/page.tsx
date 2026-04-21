@@ -2,6 +2,7 @@ import WineList from './components/WineList';
 import Stats from './components/Stats';
 import { supabase } from './utils/supabase';
 import { WineFilter } from './types/wine';
+import { mapWineRow } from './utils/map-wine';
 
 async function getWines(filters?: WineFilter) {
   if (!supabase) {
@@ -47,21 +48,7 @@ async function getWines(filters?: WineFilter) {
       return { wines: [], total: 0 };
     }
 
-    const winesMapped = data?.map(wine => ({
-      id: wine.Id?.toString(),
-      title: wine.Title,
-      name: wine.Title,
-      vintage: wine.Vintage,
-      country: wine.Country,
-      county: wine.County,
-      designation: wine.Designation,
-      points: wine.Points,
-      price: wine.Price,
-      province: wine.Province,
-      variety: wine.Variety,
-      winery: wine.Winery,
-      image_url: wine.image_url
-    })) || [];
+    const winesMapped = data?.map(mapWineRow) || [];
 
     return { wines: winesMapped, total: count || 0 };
   } catch (error) {

@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabase';
 import { Wine } from '../types/wine';
+import { mapWineRow } from '../utils/map-wine';
+import Pagination from '../components/Pagination';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 
@@ -15,6 +17,9 @@ export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [password, setPassword] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalWines, setTotalWines] = useState(0);
+  const pageSize = 20;
 
   useEffect(() => {
     if (authenticated) {
@@ -22,36 +27,27 @@ export default function AdminPage() {
     }
   }, [authenticated]);
 
-  const loadWines = async () => {
+  const loadWines = async (page = 1) => {
     if (!supabase) return;
 
     setLoading(true);
     setSearchTerm('');
     try {
-      const { data, error } = await supabase
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize - 1;
+      const { data, error, count } = await supabase
         .from('vinos')
-        .select('*')
-        .order('Id', { ascending: true });
+        .select('*', { count: 'exact' })
+        .order('Id', { ascending: true })
+        .range(from, to);
 
       if (error) throw error;
 
-      const winesMapped = data?.map(wine => ({
-        id: wine.Id?.toString(),
-        title: wine.Title,
-        name: wine.Title,
-        vintage: wine.Vintage,
-        country: wine.Country,
-        county: wine.County,
-        designation: wine.Designation,
-        points: wine.Points,
-        price: wine.Price,
-        province: wine.Province,
-        variety: wine.Variety,
-        winery: wine.Winery,
-        image_url: wine.image_url
-      })) || [];
+      const winesMapped = data?.map(mapWineRow) || [];
 
       setWines(winesMapped);
+      setTotalWines(count || 0);
+      setCurrentPage(page);
     } catch (error) {
       console.error('Error cargando vinos:', error);
     } finally {
@@ -97,7 +93,7 @@ export default function AdminPage() {
       if (error) throw error;
 
       setEditingWine(null);
-      loadWines();
+      loadWines(currentPage);
       toast.success('Vino actualizado correctamente');
     } catch (error) {
       console.error('Error actualizando vino:', error);
@@ -116,7 +112,7 @@ export default function AdminPage() {
 
       if (error) throw error;
 
-      loadWines();
+      loadWines(currentPage);
       toast.success('Vino eliminado correctamente');
     } catch (error) {
       console.error('Error eliminando vino:', error);
@@ -148,7 +144,7 @@ export default function AdminPage() {
 
       setCreatingWine(false);
       setNewWine({});
-      loadWines();
+      loadWines(currentPage);
       toast.success('Vino creado correctamente');
     } catch (error) {
       console.error('Error creando vino:', error);
@@ -227,10 +223,11 @@ export default function AdminPage() {
                   <input type="text" placeholder="Variedad" value={newWine.variety || ''} onChange={(e) => setNewWine(prev => ({ ...prev, variety: e.target.value }))} className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm" />
                   <input type="text" placeholder="País" value={newWine.country || ''} onChange={(e) => setNewWine(prev => ({ ...prev, country: e.target.value }))} className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm" />
                   <input type="text" placeholder="Provincia" value={newWine.province || ''} onChange={(e) => setNewWine(prev => ({ ...prev, province: e.target.value }))} className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm" />
+                  <input type="text" placeholder="Condado" value={newWine.county || ''} onChange={(e) => setNewWine(prev => ({ ...prev, county: e.target.value }))} className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm" />
+                  <input type="text" placeholder="Designación" value={newWine.designation || ''} onChange={(e) => setNewWine(prev => ({ ...prev, designation: e.target.value }))} className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm" />
                   <input type="number" placeholder="Precio" value={newWine.price || ''} onChange={(e) => setNewWine(prev => ({ ...prev, price: parseFloat(e.target.value) }))} className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm" />
                   <input type="number" placeholder="Puntos" value={newWine.points || ''} onChange={(e) => setNewWine(prev => ({ ...prev, points: parseInt(e.target.value) }))} className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm" />
                 </div>
-                <input type="text" placeholder="Designación" value={newWine.designation || ''} onChange={(e) => setNewWine(prev => ({ ...prev, designation: e.target.value }))} className="w-full px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm mb-3" />
                 <div className="space-y-2 mb-3">
                   <label className="block text-cork-200 text-sm font-medium">Imagen del vino</label>
                   {newWine.image_url && (
@@ -318,6 +315,20 @@ export default function AdminPage() {
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
                       <input
+                        type="text"
+                        placeholder="Condado"
+                        value={editingWine!.county || ''}
+                        onChange={(e) => setEditingWine(prev => prev ? { ...prev, county: e.target.value } : prev)}
+                        className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Designación"
+                        value={editingWine!.designation || ''}
+                        onChange={(e) => setEditingWine(prev => prev ? { ...prev, designation: e.target.value } : prev)}
+                        className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
+                      />
+                      <input
                         type="number"
                         placeholder="Precio"
                         value={editingWine!.price || ''}
@@ -332,13 +343,6 @@ export default function AdminPage() {
                         className="px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
                       />
                     </div>
-                    <input
-                      type="text"
-                      placeholder="Designación"
-                      value={editingWine!.designation || ''}
-                      onChange={(e) => setEditingWine(prev => prev ? { ...prev, designation: e.target.value } : prev)}
-                      className="w-full px-3 py-2 rounded bg-wine-darker border border-cork-400/20 text-cork-100 text-sm"
-                    />
                     <div className="space-y-2">
                       <label className="block text-cork-200 text-sm font-medium">Imagen del vino</label>
                       {editingWine!.image_url && (
@@ -441,7 +445,17 @@ export default function AdminPage() {
                 )}
               </div>
             ))}
-          </div>
+            </div>
+            <div className="mt-6">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(totalWines / pageSize)}
+                onPageChange={(page) => loadWines(page)}
+              />
+              <p className="text-cork-400 text-xs text-center mt-2">
+                Mostrando {wines.length} de {totalWines} vinos
+              </p>
+            </div>
           </div>
         )}
       </div>
