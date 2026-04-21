@@ -23,23 +23,24 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (authenticated) {
-      loadWines();
+      loadWines(1, searchTerm);
     }
   }, [authenticated]);
 
-  const loadWines = async (page = 1) => {
+  const loadWines = async (page = 1, search = '') => {
     if (!supabase) return;
 
     setLoading(true);
-    setSearchTerm('');
     try {
+      let query = supabase.from('vinos').select('*', { count: 'exact' }).order('Id', { ascending: true });
+
+      if (search) {
+        query = query.or(`Title.ilike.%${search}%,Winery.ilike.%${search}%,Variety.ilike.%${search}%`);
+      }
+
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
-      const { data, error, count } = await supabase
-        .from('vinos')
-        .select('*', { count: 'exact' })
-        .order('Id', { ascending: true })
-        .range(from, to);
+      const { data, error, count } = await query.range(from, to);
 
       if (error) throw error;
 
@@ -103,7 +104,7 @@ export default function AdminPage() {
       if (error) throw error;
 
       setEditingWine(null);
-      loadWines(currentPage);
+      loadWines(currentPage, searchTerm);
       toast.success('Vino actualizado correctamente');
     } catch (error) {
       console.error('Error actualizando vino:', error);
@@ -122,7 +123,7 @@ export default function AdminPage() {
 
       if (error) throw error;
 
-      loadWines(currentPage);
+      loadWines(currentPage, searchTerm);
       toast.success('Vino eliminado correctamente');
     } catch (error) {
       console.error('Error eliminando vino:', error);
@@ -154,7 +155,7 @@ export default function AdminPage() {
 
       setCreatingWine(false);
       setNewWine({});
-      loadWines(currentPage);
+      loadWines(currentPage, searchTerm);
       toast.success('Vino creado correctamente');
     } catch (error) {
       console.error('Error creando vino:', error);
@@ -214,14 +215,21 @@ export default function AdminPage() {
           </div>
         ) : (
           <div>
-            <div className="mb-4">
+            <div className="mb-4 flex gap-2">
               <input
                 type="text"
-                placeholder="Buscar por nombre..."
+                placeholder="Buscar por nombre, bodega o variedad..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg bg-wine-darker border border-cork-400/20 text-cork-100 placeholder-cork-400 focus:outline-none focus:border-cork-300 text-sm"
+                onKeyDown={(e) => e.key === 'Enter' && loadWines(1, searchTerm)}
+                className="flex-1 px-4 py-2 rounded-lg bg-wine-darker border border-cork-400/20 text-cork-100 placeholder-cork-400 focus:outline-none focus:border-cork-300 text-sm"
               />
+              <button
+                onClick={() => loadWines(1, searchTerm)}
+                className="px-4 py-2 bg-wine-light hover:bg-wine-light/80 text-cork-100 rounded-lg font-semibold transition-colors text-sm"
+              >
+                Buscar
+              </button>
             </div>
             {creatingWine && (
               <div className="bg-wine-dark/80 border border-green-400/30 rounded-lg p-4 mb-4 backdrop-blur-sm">
@@ -270,11 +278,7 @@ export default function AdminPage() {
               </div>
             )}
             <div className="grid gap-4">
-            {wines
-              .filter(wine => wine.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              wine.winery?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              wine.variety?.toLowerCase().includes(searchTerm.toLowerCase()))
-              .map((wine) => (
+            {wines.map((wine) => (
               <div
                 key={wine.id}
                 className="bg-wine-dark/80 border border-cork-400/20 rounded-lg p-4 backdrop-blur-sm"
