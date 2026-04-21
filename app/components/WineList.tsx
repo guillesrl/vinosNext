@@ -16,6 +16,7 @@ export default function WineList({ initialWines }: WineListProps) {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [activeFilters, setActiveFilters] = useState<WineFilter>({});
+  const [hoveredWine, setHoveredWine] = useState<string | null>(null);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -120,8 +121,17 @@ export default function WineList({ initialWines }: WineListProps) {
           return (
             <div
               key={wine.id || index}
-              className="bg-wine-dark/80 border border-cork-400/20 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-cork-400/40 backdrop-blur-sm text-sm group h-56"
+              className="bg-wine-dark/80 border border-cork-400/20 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-cork-400/40 backdrop-blur-sm text-sm group h-56 relative"
+              onMouseEnter={() => setTimeout(() => setHoveredWine(wine.id || null), 2000)}
+              onMouseLeave={() => setHoveredWine(null)}
             >
+              {hoveredWine === wine.id && (
+                <div className="absolute inset-x-0 bottom-0 bg-wine-darker/95 px-2 py-1 text-center z-30 pointer-events-none">
+                  <span className="text-cork-100 text-xs truncate block">
+                    {wine.title || wine.name || 'Sin título'}
+                  </span>
+                </div>
+              )}
               <div className="flex items-stretch">
                 <div className="flex-1 p-2">
                   <div className="flex justify-between items-start mb-3">
@@ -166,7 +176,7 @@ export default function WineList({ initialWines }: WineListProps) {
                     )}
                   </div>
                 </div>
-                <div className="w-24 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center relative overflow-hidden">
+                <div className="w-24 flex-shrink-0 bg-gradient-to-b from-wine-dark/50 to-wine-darker/50 flex items-center justify-center relative overflow-hidden group/tooltip">
                   <div className="absolute inset-0 bg-wine-light/5 group-hover:bg-wine-light/10 transition-colors duration-300"></div>
                   <Image
                     src={wine.image_url || '/wine-bottle.svg'}
@@ -178,10 +188,15 @@ export default function WineList({ initialWines }: WineListProps) {
                   />
                   <button
                     onClick={() => wine.id && toggleFavorite(wine.id)}
-                    className="absolute bottom-1 right-1 text-lg hover:scale-125 transition-transform z-20"
+                    className="absolute top-1 right-1 text-lg hover:scale-125 transition-transform z-20"
                   >
                     {isFav ? '❤️' : '🤍'}
                   </button>
+                  <div className="absolute left-0 right-0 bottom-0 bg-wine-darker/95 px-1 py-0.5 text-center opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-300 pointer-events-none">
+                    <span className="text-cork-100 text-xs truncate block">
+                      {wine.title || wine.name || 'Sin título'}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
