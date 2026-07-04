@@ -1,9 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '../utils/supabase';
 import { Wine } from '../types/wine';
-import { mapWineRow } from '../utils/map-wine';
 import Pagination from '../components/Pagination';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
@@ -29,26 +27,16 @@ export default function AdminPage() {
   }, [authenticated]);
 
   const loadWines = async (page = 1, search = '') => {
-    if (!supabase) return;
-
     setLoading(true);
     try {
-      let query = supabase.from('vinos').select('*', { count: 'exact' }).order('Id', { ascending: true });
+      const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+      if (search) params.set('search', search);
+      const res = await fetch(`/api/vinos?${params.toString()}`);
+      if (!res.ok) throw new Error('Error al cargar vinos');
+      const data = await res.json();
 
-      if (search) {
-        query = query.or(`Title.ilike.%${search}%,Winery.ilike.%${search}%,Variety.ilike.%${search}%`);
-      }
-
-      const from = (page - 1) * pageSize;
-      const to = from + pageSize - 1;
-      const { data, error, count } = await query.range(from, to);
-
-      if (error) throw error;
-
-      const winesMapped = data?.map(mapWineRow) || [];
-
-      setWines(winesMapped);
-      setTotalWines(count || 0);
+      setWines(data.wines || []);
+      setTotalWines(data.total || 0);
       setCurrentPage(page);
     } catch (error) {
       console.error('Error cargando vinos:', error);
@@ -82,27 +70,15 @@ export default function AdminPage() {
   };
 
   const handleSave = async () => {
-    if (!supabase || !editingWine || !editingWine!.id) return;
+    if (!editingWine || !editingWine.id) return;
 
     try {
-      const { error } = await supabase
-        .from('vinos')
-        .update({
-          Title: editingWine!.title,
-          Vintage: editingWine!.vintage,
-          Country: editingWine!.country,
-          County: editingWine!.county,
-          Designation: editingWine!.designation,
-          Points: editingWine!.points,
-          Price: editingWine!.price,
-          Province: editingWine!.province,
-          Variety: editingWine!.variety,
-          Winery: editingWine!.winery,
-          image_url: editingWine!.image_url
-        })
-        .eq('Id', parseInt(editingWine!.id));
-
-      if (error) throw error;
+      const res = await fetch(`/api/vinos/${editingWine.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingWine),
+      });
+      if (!res.ok) throw new Error('Error al actualizar');
 
       setEditingWine(null);
       loadWines(currentPage, searchTerm);
@@ -114,15 +90,11 @@ export default function AdminPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!supabase || !confirm('¿Seguro que deseas eliminar este vino?')) return;
+    if (!confirm('¿Seguro que deseas eliminar este vino?')) return;
 
     try {
-      const { error } = await supabase
-        .from('vinos')
-        .delete()
-        .eq('Id', parseInt(id));
-
-      if (error) throw error;
+      const res = await fetch(`/api/vinos/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Error al eliminar');
 
       loadWines(currentPage, searchTerm);
       toast.success('Vino eliminado correctamente');
@@ -133,26 +105,13 @@ export default function AdminPage() {
   };
 
   const handleCreate = async () => {
-    if (!supabase) return;
-
     try {
-      const { error } = await supabase
-        .from('vinos')
-        .insert({
-          Title: newWine.title || '',
-          Vintage: newWine.vintage || null,
-          Country: newWine.country || '',
-          County: newWine.county || '',
-          Designation: newWine.designation || '',
-          Points: newWine.points || null,
-          Price: newWine.price || null,
-          Province: newWine.province || '',
-          Variety: newWine.variety || '',
-          Winery: newWine.winery || '',
-          image_url: newWine.image_url || ''
-        });
-
-      if (error) throw error;
+      const res = await fetch('/api/vinos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newWine),
+      });
+      if (!res.ok) throw new Error('Error al crear');
 
       setCreatingWine(false);
       setNewWine({});

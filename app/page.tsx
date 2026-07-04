@@ -1,58 +1,15 @@
 import WineList from './components/WineList';
 import Stats from './components/Stats';
-import { supabase } from './utils/supabase';
 import { WineFilter } from './types/wine';
 import { mapWineRow } from './utils/map-wine';
+import { queryWines } from './utils/wines-db';
 
 async function getWines(filters?: WineFilter) {
-  if (!supabase) {
-    console.error('Error: Cliente de Supabase no inicializado.');
-    return { wines: [], total: 0 };
-  }
-
   try {
-    let query = supabase.from('vinos').select('*', { count: 'exact' });
-
-    if (filters) {
-      if (filters.search) {
-        query = query.or(`Title.ilike.%${filters.search}%,Winery.ilike.%${filters.search}%,Variety.ilike.%${filters.search}%`);
-      }
-      if (filters.minPrice !== undefined) {
-        query = query.gte('Price', filters.minPrice);
-      }
-      if (filters.maxPrice !== undefined) {
-        query = query.lte('Price', filters.maxPrice);
-      }
-      if (filters.minPoints !== undefined) {
-        query = query.gte('Points', filters.minPoints);
-      }
-      if (filters.vintage !== undefined) {
-        query = query.eq('Vintage', filters.vintage);
-      }
-      if (filters.sortField) {
-        const columnMap: Record<string, string> = {
-          points: 'Points',
-          price: 'Price',
-          vintage: 'Vintage',
-          title: 'Title'
-        };
-        const column = columnMap[filters.sortField] || 'Id';
-        query = query.order(column, { ascending: filters.sortDirection === 'asc' });
-      }
-    }
-
-    const { data, error, count } = await query;
-
-    if (error) {
-      console.error('Error al obtener vinos:', error);
-      return { wines: [], total: 0 };
-    }
-
-    const winesMapped = data?.map(mapWineRow) || [];
-
-    return { wines: winesMapped, total: count || 0 };
+    const { rows, total } = await queryWines(filters || {});
+    return { wines: rows.map(mapWineRow), total };
   } catch (error) {
-    console.error('Error inesperado:', error);
+    console.error('Error al obtener vinos:', error);
     return { wines: [], total: 0 };
   }
 }
